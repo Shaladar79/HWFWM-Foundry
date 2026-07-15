@@ -3,8 +3,8 @@ import { HWFWMActorSheet } from "./actor/hwfwm-actor-sheet.js";
 /**
  * Register all HWFWM document sheets.
  *
- * Keep sheet registration centralized here so the main system entry file
- * only needs to call one function.
+ * Sheet registration stays centralized here so the main system
+ * entry point only needs to call one registration function.
  */
 export function registerHWFWMSheets() {
   console.log("HWFWM | Registering document sheets");
