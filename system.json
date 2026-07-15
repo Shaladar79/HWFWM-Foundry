@@ -22,7 +22,8 @@
   "documentTypes": {
     "Actor": {
       "character": {},
-      "npc": {}
+      "npc": {},
+      "monster": {}
     },
     "Item": {
       "ability": {},
