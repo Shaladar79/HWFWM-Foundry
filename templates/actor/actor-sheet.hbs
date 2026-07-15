@@ -1,22 +1,24 @@
-<form class="{{cssClass}} hwfwm-actor-sheet" autocomplete="off">
+<section class="hwfwm-actor-sheet">
 
   <header class="sheet-header">
     <img
       class="profile-img"
       src="{{actor.img}}"
       data-edit="img"
+      alt="{{actor.name}}"
       title="{{actor.name}}"
-      height="100"
       width="100"
+      height="100"
     />
 
     <div class="header-fields">
-      <h1 class="char-name">
+      <h1 class="actor-name">
         <input
-          name="name"
           type="text"
+          name="name"
           value="{{actor.name}}"
           placeholder="Name"
+          {{disabled (not editable)}}
         />
       </h1>
 
@@ -28,6 +30,7 @@
   </header>
 
   <section class="resources">
+
     <div class="resource">
       <label>Life Force</label>
 
@@ -37,6 +40,7 @@
           name="system.lifeForce.value"
           value="{{system.lifeForce.value}}"
           min="0"
+          {{disabled (not editable)}}
         />
 
         <span>/</span>
@@ -46,6 +50,7 @@
           name="system.lifeForce.max"
           value="{{system.lifeForce.max}}"
           min="0"
+          {{disabled (not editable)}}
         />
       </div>
     </div>
@@ -59,6 +64,7 @@
           name="system.mana.value"
           value="{{system.mana.value}}"
           min="0"
+          {{disabled (not editable)}}
         />
 
         <span>/</span>
@@ -68,6 +74,7 @@
           name="system.mana.max"
           value="{{system.mana.max}}"
           min="0"
+          {{disabled (not editable)}}
         />
       </div>
     </div>
@@ -81,6 +88,7 @@
           name="system.stamina.value"
           value="{{system.stamina.value}}"
           min="0"
+          {{disabled (not editable)}}
         />
 
         <span>/</span>
@@ -90,33 +98,80 @@
           name="system.stamina.max"
           value="{{system.stamina.max}}"
           min="0"
+          {{disabled (not editable)}}
         />
       </div>
     </div>
+
   </section>
 
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="abilities">Abilities</a>
-    <a class="item" data-tab="essences">Essences</a>
-    <a class="item" data-tab="inventory">Inventory</a>
+  <nav class="sheet-tabs" data-group="primary">
+    <button
+      type="button"
+      class="tab"
+      data-action="tab"
+      data-group="primary"
+      data-tab="description"
+    >
+      Description
+    </button>
+
+    <button
+      type="button"
+      class="tab"
+      data-action="tab"
+      data-group="primary"
+      data-tab="abilities"
+    >
+      Abilities
+    </button>
+
+    <button
+      type="button"
+      class="tab"
+      data-action="tab"
+      data-group="primary"
+      data-tab="essences"
+    >
+      Essences
+    </button>
+
+    <button
+      type="button"
+      class="tab"
+      data-action="tab"
+      data-group="primary"
+      data-tab="inventory"
+    >
+      Inventory
+    </button>
   </nav>
 
   <section class="sheet-body">
 
-    <div class="tab description" data-group="primary" data-tab="description">
+    <section
+      class="tab"
+      data-group="primary"
+      data-tab="description"
+    >
       <div class="form-group stacked">
-        <label>Description</label>
+        <label for="{{rootId}}-description">Description</label>
 
         <textarea
+          id="{{rootId}}-description"
           name="system.description"
           rows="14"
           placeholder="Enter a description..."
+          {{disabled (not editable)}}
         >{{system.description}}</textarea>
       </div>
-    </div>
+    </section>
 
-    <div class="tab abilities" data-group="primary" data-tab="abilities">
+    <section
+      class="tab"
+      data-group="primary"
+      data-tab="abilities"
+    >
       <header class="items-header">
         <h2>Abilities</h2>
       </header>
@@ -127,6 +182,7 @@
             <img
               class="item-image"
               src="{{item.img}}"
+              alt="{{item.name}}"
               title="{{item.name}}"
               width="32"
               height="32"
@@ -142,9 +198,13 @@
           <li class="item-empty">No abilities added.</li>
         {{/each}}
       </ol>
-    </div>
+    </section>
 
-    <div class="tab essences" data-group="primary" data-tab="essences">
+    <section
+      class="tab"
+      data-group="primary"
+      data-tab="essences"
+    >
       <header class="items-header">
         <h2>Essences</h2>
       </header>
@@ -155,6 +215,7 @@
             <img
               class="item-image"
               src="{{item.img}}"
+              alt="{{item.name}}"
               title="{{item.name}}"
               width="32"
               height="32"
@@ -172,9 +233,13 @@
           <li class="item-empty">No essences added.</li>
         {{/each}}
       </ol>
-    </div>
+    </section>
 
-    <div class="tab inventory" data-group="primary" data-tab="inventory">
+    <section
+      class="tab"
+      data-group="primary"
+      data-tab="inventory"
+    >
       <header class="items-header">
         <h2>Equipment</h2>
       </header>
@@ -185,13 +250,17 @@
             <img
               class="item-image"
               src="{{item.img}}"
+              alt="{{item.name}}"
               title="{{item.name}}"
               width="32"
               height="32"
             />
 
             <span class="item-name">{{item.name}}</span>
-            <span class="item-detail">Quantity: {{item.system.quantity}}</span>
+
+            <span class="item-detail">
+              Quantity: {{item.system.quantity}}
+            </span>
           </li>
         {{else}}
           <li class="item-empty">No equipment added.</li>
@@ -208,20 +277,24 @@
             <img
               class="item-image"
               src="{{item.img}}"
+              alt="{{item.name}}"
               title="{{item.name}}"
               width="32"
               height="32"
             />
 
             <span class="item-name">{{item.name}}</span>
-            <span class="item-detail">Quantity: {{item.system.quantity}}</span>
+
+            <span class="item-detail">
+              Quantity: {{item.system.quantity}}
+            </span>
           </li>
         {{else}}
           <li class="item-empty">No consumables added.</li>
         {{/each}}
       </ol>
-    </div>
+    </section>
 
   </section>
 
-</form>
+</section>
