@@ -40,12 +40,36 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   };
 
   /**
-   * Default active tabs.
+   * ApplicationV2 tab configuration.
    *
    * The group name must match data-group="primary" in the template.
    */
-  tabGroups = {
-    primary: "attributes"
+  static TABS = {
+    primary: {
+      initial: "attributes",
+      tabs: [
+        {
+          id: "attributes",
+          label: "Attributes"
+        },
+        {
+          id: "description",
+          label: "Description"
+        },
+        {
+          id: "abilities",
+          label: "Abilities"
+        },
+        {
+          id: "essences",
+          label: "Essences"
+        },
+        {
+          id: "inventory",
+          label: "Inventory"
+        }
+      ]
+    }
   };
 
   /**
@@ -63,7 +87,11 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       system: actor.system,
       actorType: actor.type,
       editable: this.isEditable,
-      tabs: this.tabGroups,
+
+      /**
+       * Prepared ApplicationV2 tab state.
+       */
+      tabs: this._prepareTabs("primary"),
 
       abilities: actor.items.filter(
         (item) => item.type === "ability"
@@ -81,5 +109,24 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         (item) => item.type === "consumable"
       )
     });
+  }
+
+  /**
+   * Ensure the stored active tab is applied to the rendered DOM.
+   *
+   * @param {object} context Prepared rendering context.
+   * @param {object} options Rendering options.
+   */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+
+    this.changeTab(
+      this.tabGroups.primary ?? "attributes",
+      "primary",
+      {
+        force: true,
+        updatePosition: false
+      }
+    );
   }
 }
