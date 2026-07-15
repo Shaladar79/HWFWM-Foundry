@@ -8,6 +8,52 @@
     "templates": {
       "base": {
         "description": "",
+        "rank": {
+          "id": "normal",
+          "level": 0
+        },
+        "attributes": {
+          "power": {
+            "level": 0,
+            "baseScore": 40,
+            "levelModifier": 0,
+            "racialModifier": 0,
+            "equipmentModifier": 0,
+            "auraModifier": 0,
+            "abilityModifier": 0,
+            "total": 40
+          },
+          "speed": {
+            "level": 0,
+            "baseScore": 40,
+            "levelModifier": 0,
+            "racialModifier": 0,
+            "equipmentModifier": 0,
+            "auraModifier": 0,
+            "abilityModifier": 0,
+            "total": 40
+          },
+          "spirit": {
+            "level": 0,
+            "baseScore": 40,
+            "levelModifier": 0,
+            "racialModifier": 0,
+            "equipmentModifier": 0,
+            "auraModifier": 0,
+            "abilityModifier": 0,
+            "total": 40
+          },
+          "recovery": {
+            "level": 0,
+            "baseScore": 40,
+            "levelModifier": 0,
+            "racialModifier": 0,
+            "equipmentModifier": 0,
+            "auraModifier": 0,
+            "abilityModifier": 0,
+            "total": 40
+          }
+        },
         "lifeForce": {
           "value": 10,
           "max": 10
