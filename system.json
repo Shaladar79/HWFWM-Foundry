@@ -1,0 +1,34 @@
+{
+  "id": "hwfwm",
+  "title": "HWFWM",
+  "description": "An unofficial Foundry Virtual Tabletop game system inspired by essence-based progression fantasy.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13",
+    "maximum": "13"
+  },
+  "authors": [
+    {
+      "name": "Shaladar"
+    }
+  ],
+  "esmodules": [],
+  "styles": [],
+  "languages": [],
+  "packs": [],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "npc": {}
+    },
+    "Item": {
+      "ability": {},
+      "essence": {},
+      "equipment": {},
+      "consumable": {}
+    }
+  },
+  "socket": false,
+  "initiative": "1d20"
+}
