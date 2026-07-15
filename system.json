@@ -16,7 +16,9 @@
   "esmodules": [
     "scripts/hwfwm.js"
   ],
-  "styles": [],
+  "styles": [
+    "styles/hwfwm.css"
+  ],
   "languages": [],
   "packs": [],
   "documentTypes": {
