@@ -33,3 +33,8 @@ export {
   createDefaultAttributeData,
   createDefaultAttributes
 } from "./attribute-defaults.js";
+
+export {
+  normalizeStoredAttribute,
+  calculateAttributeCollection
+} from "./attribute-collection-calculator.js";
