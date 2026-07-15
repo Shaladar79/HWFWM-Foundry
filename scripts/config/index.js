@@ -7,3 +7,4 @@
 
 export * as Ranks from "./ranks/index.js";
 export * as Attributes from "./attributes/index.js";
+export * as Actors from "./actors/index.js";
