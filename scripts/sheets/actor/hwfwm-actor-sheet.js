@@ -14,14 +14,17 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   static DEFAULT_OPTIONS = {
     classes: ["hwfwm", "actor-sheet"],
+
     position: {
-      width: 720,
-      height: 680
+      width: 960,
+      height: 720
     },
+
     form: {
       closeOnSubmit: false,
       submitOnChange: true
     },
+
     window: {
       resizable: true
     }
@@ -29,13 +32,20 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /**
    * Handlebars templates rendered by this application.
-   *
-   * Additional partial templates can be added as separate parts later.
    */
   static PARTS = {
     form: {
       template: "systems/hwfwm/templates/actor/actor-sheet.hbs"
     }
+  };
+
+  /**
+   * Default active tabs.
+   *
+   * The group name must match data-group="primary" in the template.
+   */
+  tabGroups = {
+    primary: "attributes"
   };
 
   /**
@@ -46,7 +56,6 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-
     const actor = this.actor;
 
     return foundry.utils.mergeObject(context, {
@@ -54,6 +63,7 @@ export class HWFWMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       system: actor.system,
       actorType: actor.type,
       editable: this.isEditable,
+      tabs: this.tabGroups,
 
       abilities: actor.items.filter(
         (item) => item.type === "ability"
