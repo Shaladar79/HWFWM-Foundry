@@ -1,8 +1,12 @@
 import {
-  HWFWM_RANK_ORDER,
+  HWFWM_RANKS,
+  HWFWM_RANK_ORDER
+} from "./rank-definitions.js";
+
+import {
   getRankDefinition,
   isValidRankLevel
-} from "./index.js";
+} from "./rank-helpers.js";
 
 /**
  * Create a validated rank value.
@@ -171,4 +175,17 @@ export function getPreviousRankValue(value) {
   const lastLevel = previousRank.levels.at(-1);
 
   return createRankValue(previousRankId, lastLevel.value);
+}
+
+/**
+ * Return the highest valid rank value currently supported.
+ *
+ * @returns {{rank: string, level: number}}
+ */
+export function getMaximumRankValue() {
+  const highestRankId = HWFWM_RANK_ORDER.at(-1);
+  const highestRank = HWFWM_RANKS[highestRankId];
+  const highestLevel = highestRank.levels.at(-1);
+
+  return createRankValue(highestRankId, highestLevel.value);
 }
