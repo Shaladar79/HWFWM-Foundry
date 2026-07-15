@@ -61,10 +61,22 @@
   font-size: 1.75rem;
 }
 
-.hwfwm-actor-sheet .actor-type {
+.hwfwm-actor-sheet .actor-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.hwfwm-actor-sheet .actor-type,
+.hwfwm-actor-sheet .actor-rank {
   display: flex;
   gap: 6px;
   align-items: center;
+}
+
+.hwfwm-actor-sheet .actor-type,
+.hwfwm-actor-sheet .capitalize {
   text-transform: capitalize;
 }
 
@@ -156,6 +168,66 @@
 }
 
 /* ==========================================================================
+   Attributes
+   ========================================================================== */
+
+.hwfwm-actor-sheet .attributes-header,
+.hwfwm-actor-sheet .attribute-row {
+  display: grid;
+  grid-template-columns:
+    minmax(90px, 1.25fr)
+    repeat(7, minmax(66px, 1fr))
+    minmax(72px, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 850px;
+}
+
+.hwfwm-actor-sheet .attributes-header {
+  padding: 8px;
+  border-bottom: 2px solid var(--color-border-light-primary);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.hwfwm-actor-sheet .attribute-row {
+  min-height: 46px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--color-border-light-tertiary);
+}
+
+.hwfwm-actor-sheet .attribute-row:hover {
+  background: var(--color-bg-option);
+}
+
+.hwfwm-actor-sheet .attribute-row strong {
+  padding-left: 4px;
+}
+
+.hwfwm-actor-sheet .attribute-row input {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.hwfwm-actor-sheet .attribute-row input[readonly] {
+  cursor: default;
+}
+
+.hwfwm-actor-sheet .attribute-row output {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 4px;
+  border: 1px solid var(--color-border-light-primary);
+  border-radius: 3px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ==========================================================================
    Embedded Items
    ========================================================================== */
 
@@ -225,6 +297,12 @@
    Responsive Layout
    ========================================================================== */
 
+@media (max-width: 900px) {
+  .hwfwm-actor-sheet .sheet-body {
+    overflow-x: auto;
+  }
+}
+
 @media (max-width: 650px) {
   .hwfwm-actor-sheet .resources {
     grid-template-columns: 1fr;
@@ -236,5 +314,11 @@
 
   .hwfwm-actor-sheet .sheet-tabs button {
     flex: 1 1 50%;
+  }
+
+  .hwfwm-actor-sheet .actor-summary {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
   }
 }
