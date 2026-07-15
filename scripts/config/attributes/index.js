@@ -1,8 +1,9 @@
 /**
  * Attribute configuration wrapper.
  *
- * Other system files should import attribute definitions and calculation
- * helpers through this wrapper instead of importing individual modules.
+ * Other system files should import attribute definitions, defaults, and
+ * calculation helpers through this wrapper instead of importing individual
+ * modules directly.
  */
 
 export {
@@ -27,3 +28,8 @@ export {
   normalizeAttributeModifier,
   calculateAttribute
 } from "./attribute-calculator.js";
+
+export {
+  createDefaultAttributeData,
+  createDefaultAttributes
+} from "./attribute-defaults.js";
