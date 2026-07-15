@@ -26,5 +26,6 @@ export {
   getRankProgressionIndex,
   compareRankValues,
   getNextRankValue,
-  getPreviousRankValue
+  getPreviousRankValue,
+  getMaximumRankValue
 } from "./rank-value-helpers.js";
