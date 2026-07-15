@@ -1,1 +1,227 @@
+<form class="{{cssClass}} hwfwm-actor-sheet" autocomplete="off">
 
+  <header class="sheet-header">
+    <img
+      class="profile-img"
+      src="{{actor.img}}"
+      data-edit="img"
+      title="{{actor.name}}"
+      height="100"
+      width="100"
+    />
+
+    <div class="header-fields">
+      <h1 class="char-name">
+        <input
+          name="name"
+          type="text"
+          value="{{actor.name}}"
+          placeholder="Name"
+        />
+      </h1>
+
+      <div class="actor-type">
+        <strong>Actor Type:</strong>
+        <span>{{actorType}}</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="resources">
+    <div class="resource">
+      <label>Life Force</label>
+
+      <div class="resource-values">
+        <input
+          type="number"
+          name="system.lifeForce.value"
+          value="{{system.lifeForce.value}}"
+          min="0"
+        />
+
+        <span>/</span>
+
+        <input
+          type="number"
+          name="system.lifeForce.max"
+          value="{{system.lifeForce.max}}"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <div class="resource">
+      <label>Mana</label>
+
+      <div class="resource-values">
+        <input
+          type="number"
+          name="system.mana.value"
+          value="{{system.mana.value}}"
+          min="0"
+        />
+
+        <span>/</span>
+
+        <input
+          type="number"
+          name="system.mana.max"
+          value="{{system.mana.max}}"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <div class="resource">
+      <label>Stamina</label>
+
+      <div class="resource-values">
+        <input
+          type="number"
+          name="system.stamina.value"
+          value="{{system.stamina.value}}"
+          min="0"
+        />
+
+        <span>/</span>
+
+        <input
+          type="number"
+          name="system.stamina.max"
+          value="{{system.stamina.max}}"
+          min="0"
+        />
+      </div>
+    </div>
+  </section>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="abilities">Abilities</a>
+    <a class="item" data-tab="essences">Essences</a>
+    <a class="item" data-tab="inventory">Inventory</a>
+  </nav>
+
+  <section class="sheet-body">
+
+    <div class="tab description" data-group="primary" data-tab="description">
+      <div class="form-group stacked">
+        <label>Description</label>
+
+        <textarea
+          name="system.description"
+          rows="14"
+          placeholder="Enter a description..."
+        >{{system.description}}</textarea>
+      </div>
+    </div>
+
+    <div class="tab abilities" data-group="primary" data-tab="abilities">
+      <header class="items-header">
+        <h2>Abilities</h2>
+      </header>
+
+      <ol class="items-list">
+        {{#each abilities as |item|}}
+          <li class="item" data-item-id="{{item.id}}">
+            <img
+              class="item-image"
+              src="{{item.img}}"
+              title="{{item.name}}"
+              width="32"
+              height="32"
+            />
+
+            <span class="item-name">{{item.name}}</span>
+
+            <span class="item-detail">
+              Action Cost: {{item.system.actionCost}}
+            </span>
+          </li>
+        {{else}}
+          <li class="item-empty">No abilities added.</li>
+        {{/each}}
+      </ol>
+    </div>
+
+    <div class="tab essences" data-group="primary" data-tab="essences">
+      <header class="items-header">
+        <h2>Essences</h2>
+      </header>
+
+      <ol class="items-list">
+        {{#each essences as |item|}}
+          <li class="item" data-item-id="{{item.id}}">
+            <img
+              class="item-image"
+              src="{{item.img}}"
+              title="{{item.name}}"
+              width="32"
+              height="32"
+            />
+
+            <span class="item-name">{{item.name}}</span>
+
+            {{#if item.system.isConfluence}}
+              <span class="item-detail">Confluence</span>
+            {{else}}
+              <span class="item-detail">Essence</span>
+            {{/if}}
+          </li>
+        {{else}}
+          <li class="item-empty">No essences added.</li>
+        {{/each}}
+      </ol>
+    </div>
+
+    <div class="tab inventory" data-group="primary" data-tab="inventory">
+      <header class="items-header">
+        <h2>Equipment</h2>
+      </header>
+
+      <ol class="items-list">
+        {{#each equipment as |item|}}
+          <li class="item" data-item-id="{{item.id}}">
+            <img
+              class="item-image"
+              src="{{item.img}}"
+              title="{{item.name}}"
+              width="32"
+              height="32"
+            />
+
+            <span class="item-name">{{item.name}}</span>
+            <span class="item-detail">Quantity: {{item.system.quantity}}</span>
+          </li>
+        {{else}}
+          <li class="item-empty">No equipment added.</li>
+        {{/each}}
+      </ol>
+
+      <header class="items-header">
+        <h2>Consumables</h2>
+      </header>
+
+      <ol class="items-list">
+        {{#each consumables as |item|}}
+          <li class="item" data-item-id="{{item.id}}">
+            <img
+              class="item-image"
+              src="{{item.img}}"
+              title="{{item.name}}"
+              width="32"
+              height="32"
+            />
+
+            <span class="item-name">{{item.name}}</span>
+            <span class="item-detail">Quantity: {{item.system.quantity}}</span>
+          </li>
+        {{else}}
+          <li class="item-empty">No consumables added.</li>
+        {{/each}}
+      </ol>
+    </div>
+
+  </section>
+
+</form>
