@@ -14,7 +14,7 @@
     }
   ],
   "url": "https://github.com/Shaladar79/HWFWM-Foundry",
-  "manifest": "https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/system.json",
+  "manifest": "https://github.com/Shaladar79/HWFWM-Foundry/releases/latest/download/system.json",
   "download": "https://github.com/Shaladar79/HWFWM-Foundry/releases/latest/download/hwfwm.zip",
   "esmodules": [
     "scripts/hwfwm.js"
