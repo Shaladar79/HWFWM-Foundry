@@ -6,6 +6,7 @@
  * registrations, hooks, sheets, documents, and utilities.
  */
 
+import { registerHWFWMConfig } from "./config/register-config.js";
 import { registerHWFWMSheets } from "./sheets/register-sheets.js";
 
 /**
@@ -16,14 +17,17 @@ import { registerHWFWMSheets } from "./sheets/register-sheets.js";
 Hooks.once("init", () => {
   console.log("HWFWM | Initializing system");
 
+  const config = registerHWFWMConfig();
+
   /**
    * Public system namespace.
    *
-   * Future modules can expose configuration, documents, utilities,
-   * roll functions, and system APIs through this object.
+   * This namespace exposes stable system APIs for internal modules,
+   * macros, and future integrations.
    */
   game.hwfwm = {
-    version: "0.0.1"
+    version: game.system.version,
+    config
   };
 
   registerHWFWMSheets();
