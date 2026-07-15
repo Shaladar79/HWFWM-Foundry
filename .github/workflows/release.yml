@@ -1,0 +1,89 @@
+name: Build Foundry Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version from system.json, such as 0.0.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate system manifest
+        shell: bash
+        run: |
+          python -m json.tool system.json > /dev/null
+
+          MANIFEST_VERSION="$(python -c "import json; print(json.load(open('system.json'))['version'])")"
+          REQUESTED_VERSION="${{ inputs.version }}"
+
+          if [ "$MANIFEST_VERSION" != "$REQUESTED_VERSION" ]; then
+            echo "system.json version is $MANIFEST_VERSION"
+            echo "Requested release version is $REQUESTED_VERSION"
+            echo "These versions must match."
+            exit 1
+          fi
+
+      - name: Verify required system files
+        shell: bash
+        run: |
+          required_paths=(
+            "system.json"
+            "template.json"
+            "scripts"
+            "styles"
+            "templates"
+          )
+
+          for path in "${required_paths[@]}"; do
+            if [ ! -e "$path" ]; then
+              echo "Missing required path: $path"
+              exit 1
+            fi
+          done
+
+      - name: Build installation ZIP
+        shell: bash
+        run: |
+          zip -r hwfwm.zip \
+            system.json \
+            template.json \
+            scripts \
+            styles \
+            templates \
+            -x "*.DS_Store" \
+            -x "*/.DS_Store"
+
+      - name: Verify ZIP structure
+        shell: bash
+        run: |
+          unzip -l hwfwm.zip
+
+          if ! unzip -Z1 hwfwm.zip | grep -qx "system.json"; then
+            echo "system.json is not at the root of hwfwm.zip."
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          gh release create "v${RELEASE_VERSION}" \
+            hwfwm.zip \
+            system.json \
+            --target "${GITHUB_SHA}" \
+            --title "HWFWM v${RELEASE_VERSION}" \
+            --generate-notes
