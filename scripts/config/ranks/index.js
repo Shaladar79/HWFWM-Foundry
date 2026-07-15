@@ -1,9 +1,8 @@
 /**
  * Rank configuration wrapper.
  *
- * Other system files should import rank data and helpers from this wrapper
- * instead of importing individual rank files directly. This gives the rest
- * of the system one stable entry point for rank-related functionality.
+ * Other system files should import rank data and helpers through this wrapper
+ * instead of importing individual rank modules directly.
  */
 
 export {
@@ -20,3 +19,12 @@ export {
   getRankLevelLabel,
   compareRanks
 } from "./rank-helpers.js";
+
+export {
+  createRankValue,
+  normalizeRankValue,
+  getRankProgressionIndex,
+  compareRankValues,
+  getNextRankValue,
+  getPreviousRankValue
+} from "./rank-value-helpers.js";
