@@ -22,9 +22,23 @@
         />
       </h1>
 
-      <div class="actor-type">
-        <strong>Actor Type:</strong>
-        <span>{{actorType}}</span>
+      <div class="actor-summary">
+        <div class="actor-type">
+          <strong>Actor Type:</strong>
+          <span>{{actorType}}</span>
+        </div>
+
+        <div class="actor-rank">
+          <strong>Rank:</strong>
+
+          {{#if (eq system.rank.id "normal")}}
+            <span>Normal</span>
+          {{else}}
+            <span class="capitalize">
+              {{system.rank.id}} {{system.rank.level}}
+            </span>
+          {{/if}}
+        </div>
       </div>
     </div>
   </header>
@@ -111,6 +125,16 @@
       class="tab"
       data-action="tab"
       data-group="primary"
+      data-tab="attributes"
+    >
+      Attributes
+    </button>
+
+    <button
+      type="button"
+      class="tab"
+      data-action="tab"
+      data-group="primary"
       data-tab="description"
     >
       Description
@@ -148,6 +172,224 @@
   </nav>
 
   <section class="sheet-body">
+
+    <section
+      class="tab"
+      data-group="primary"
+      data-tab="attributes"
+    >
+      <header class="attributes-header">
+        <span>Attribute</span>
+        <span>Level</span>
+        <span>Base</span>
+        <span>Level Mod</span>
+        <span>Racial</span>
+        <span>Equipment</span>
+        <span>Aura</span>
+        <span>Ability</span>
+        <span>Total</span>
+      </header>
+
+      <div class="attribute-row">
+        <strong>Power</strong>
+
+        <input
+          type="number"
+          value="{{system.attributes.power.level}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.baseScore}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.levelModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.racialModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.equipmentModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.auraModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.power.abilityModifier}}"
+          readonly
+        />
+
+        <output>
+          {{system.attributes.power.total}}%
+        </output>
+      </div>
+
+      <div class="attribute-row">
+        <strong>Speed</strong>
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.level}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.baseScore}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.levelModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.racialModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.equipmentModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.auraModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.speed.abilityModifier}}"
+          readonly
+        />
+
+        <output>
+          {{system.attributes.speed.total}}%
+        </output>
+      </div>
+
+      <div class="attribute-row">
+        <strong>Spirit</strong>
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.level}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.baseScore}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.levelModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.racialModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.equipmentModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.auraModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.spirit.abilityModifier}}"
+          readonly
+        />
+
+        <output>
+          {{system.attributes.spirit.total}}%
+        </output>
+      </div>
+
+      <div class="attribute-row">
+        <strong>Recovery</strong>
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.level}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.baseScore}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.levelModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.racialModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.equipmentModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.auraModifier}}"
+          readonly
+        />
+
+        <input
+          type="number"
+          value="{{system.attributes.recovery.abilityModifier}}"
+          readonly
+        />
+
+        <output>
+          {{system.attributes.recovery.total}}%
+        </output>
+      </div>
+    </section>
 
     <section
       class="tab"
