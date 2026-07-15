@@ -1,0 +1,91 @@
+{
+  "Actor": {
+    "types": [
+      "character",
+      "npc",
+      "monster"
+    ],
+    "templates": {
+      "base": {
+        "description": "",
+        "lifeForce": {
+          "value": 10,
+          "max": 10
+        },
+        "mana": {
+          "value": 10,
+          "max": 10
+        },
+        "stamina": {
+          "value": 10,
+          "max": 10
+        }
+      }
+    },
+    "character": {
+      "templates": [
+        "base"
+      ]
+    },
+    "npc": {
+      "templates": [
+        "base"
+      ]
+    },
+    "monster": {
+      "templates": [
+        "base"
+      ]
+    }
+  },
+  "Item": {
+    "types": [
+      "ability",
+      "essence",
+      "equipment",
+      "consumable"
+    ],
+    "templates": {
+      "base": {
+        "description": ""
+      }
+    },
+    "ability": {
+      "templates": [
+        "base"
+      ],
+      "rank": "normal",
+      "abilityType": "",
+      "actionType": "",
+      "actionCost": 1,
+      "cost": {
+        "resource": "none",
+        "amount": 0
+      }
+    },
+    "essence": {
+      "templates": [
+        "base"
+      ],
+      "category": "essence",
+      "isConfluence": false
+    },
+    "equipment": {
+      "templates": [
+        "base"
+      ],
+      "quantity": 1,
+      "equipped": false
+    },
+    "consumable": {
+      "templates": [
+        "base"
+      ],
+      "quantity": 1,
+      "uses": {
+        "value": 1,
+        "max": 1
+      }
+    }
+  }
+}
