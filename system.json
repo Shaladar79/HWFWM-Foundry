@@ -13,7 +13,9 @@
       "name": "Shaladar"
     }
   ],
-  "esmodules": [],
+  "esmodules": [
+    "scripts/hwfwm.js"
+  ],
   "styles": [],
   "languages": [],
   "packs": [],
