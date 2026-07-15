@@ -1,0 +1,240 @@
+/* ==========================================================================
+   HWFWM Actor Sheet
+   Shared presentation for character, NPC, and monster Actor sheets.
+   ========================================================================== */
+
+.hwfwm.actor-sheet {
+  min-width: 600px;
+  min-height: 500px;
+}
+
+.hwfwm.actor-sheet .window-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+.hwfwm-actor-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.hwfwm-actor-sheet .sheet-header {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border-light-primary);
+}
+
+.hwfwm-actor-sheet .profile-img {
+  flex: 0 0 100px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 1px solid var(--color-border-light-primary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.hwfwm-actor-sheet .header-fields {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hwfwm-actor-sheet .actor-name {
+  margin: 0;
+}
+
+.hwfwm-actor-sheet .actor-name input {
+  width: 100%;
+  height: 42px;
+  font-size: 1.75rem;
+}
+
+.hwfwm-actor-sheet .actor-type {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  text-transform: capitalize;
+}
+
+/* ==========================================================================
+   Resources
+   ========================================================================== */
+
+.hwfwm-actor-sheet .resources {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border-light-primary);
+}
+
+.hwfwm-actor-sheet .resource {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.hwfwm-actor-sheet .resource label {
+  font-weight: bold;
+}
+
+.hwfwm-actor-sheet .resource-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+}
+
+.hwfwm-actor-sheet .resource-values input {
+  width: 100%;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+
+.hwfwm-actor-sheet .sheet-tabs {
+  display: flex;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--color-border-light-primary);
+}
+
+.hwfwm-actor-sheet .sheet-tabs button {
+  flex: 1;
+  margin: 0;
+  padding: 8px 6px;
+  border: 0;
+  border-right: 1px solid var(--color-border-light-primary);
+  border-radius: 0;
+  background: transparent;
+}
+
+.hwfwm-actor-sheet .sheet-tabs button:last-child {
+  border-right: 0;
+}
+
+.hwfwm-actor-sheet .sheet-tabs button:hover,
+.hwfwm-actor-sheet .sheet-tabs button.active {
+  background: var(--color-bg-option);
+  text-shadow: none;
+}
+
+/* ==========================================================================
+   Sheet Body
+   ========================================================================== */
+
+.hwfwm-actor-sheet .sheet-body {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  overflow: auto;
+}
+
+.hwfwm-actor-sheet .sheet-body > .tab:not(.active) {
+  display: none;
+}
+
+.hwfwm-actor-sheet textarea {
+  width: 100%;
+  min-height: 250px;
+  resize: vertical;
+}
+
+/* ==========================================================================
+   Embedded Items
+   ========================================================================== */
+
+.hwfwm-actor-sheet .items-header {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--color-border-light-primary);
+}
+
+.hwfwm-actor-sheet .items-header:first-child {
+  margin-top: 0;
+}
+
+.hwfwm-actor-sheet .items-header h2 {
+  margin: 0;
+  border: 0;
+}
+
+.hwfwm-actor-sheet .items-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hwfwm-actor-sheet .items-list .item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--color-border-light-tertiary);
+}
+
+.hwfwm-actor-sheet .item-image {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border: 0;
+}
+
+.hwfwm-actor-sheet .item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hwfwm-actor-sheet .item-detail {
+  flex: 0 0 auto;
+  color: var(--color-text-dark-secondary);
+  white-space: nowrap;
+}
+
+.hwfwm-actor-sheet .item-empty {
+  padding: 12px 8px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Responsive Layout
+   ========================================================================== */
+
+@media (max-width: 650px) {
+  .hwfwm-actor-sheet .resources {
+    grid-template-columns: 1fr;
+  }
+
+  .hwfwm-actor-sheet .sheet-tabs {
+    flex-wrap: wrap;
+  }
+
+  .hwfwm-actor-sheet .sheet-tabs button {
+    flex: 1 1 50%;
+  }
+}
