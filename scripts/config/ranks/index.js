@@ -1,8 +1,8 @@
 /**
  * Rank configuration wrapper.
  *
- * Other system files should import rank data and helpers through this wrapper
- * instead of importing individual rank modules directly.
+ * Other system files should import rank data, defaults, and helpers through
+ * this wrapper instead of importing individual rank modules directly.
  */
 
 export {
@@ -29,3 +29,7 @@ export {
   getPreviousRankValue,
   getMaximumRankValue
 } from "./rank-value-helpers.js";
+
+export {
+  createDefaultRankData
+} from "./rank-defaults.js";
