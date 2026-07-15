@@ -7,6 +7,7 @@
  */
 
 import { registerHWFWMConfig } from "./config/register-config.js";
+import { registerHWFWMDocuments } from "./documents/register-documents.js";
 import { registerHWFWMSheets } from "./sheets/register-sheets.js";
 
 /**
@@ -30,6 +31,7 @@ Hooks.once("init", () => {
     config
   };
 
+  registerHWFWMDocuments();
   registerHWFWMSheets();
 });
 
