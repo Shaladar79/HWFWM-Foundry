@@ -1,3 +1,5 @@
+import {evasiveFootwork} from "./nature-effects.js";
+import {purchaseEvasiveFootwork} from "./nature-talents.js";
 import {NATURE_CHOICES,natureSummary,natureCheckBonus} from "./nature-catalog.js";
 import {listStones,registerStone} from "./awakening-stones.js";
 import {validateIdentity} from "./character-profile.js";
@@ -14,6 +16,10 @@ export class HWFWMActorSheet extends ActorSheet{
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
   data.natureChoices=NATURE_CHOICES.map(name=>({name,selected:name===s.nature}));
+  const purchased=Number(this.actor.getFlag("hwfwm","evasivePurchased")??0);
+  data.evasiveTalent=evasiveFootwork(s.nature,purchased);
+  data.evasiveCost=Number(game.settings.get("hwfwm","evasiveFootworkCost"));
+  data.canPurchaseEvasive=data.evasiveCost>0&&data.evasiveTalent.ranks<data.evasiveTalent.maximum&&Number(s.talentXP)>=data.evasiveCost;
   data.natureGifts=natureSummary(s.nature,s.rank).gifts;data.isEssenceUser=["character","npc"].includes(this.actor.type)&&!(this.actor.type==="npc"&&s.normal);
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
@@ -32,6 +38,7 @@ export class HWFWMActorSheet extends ActorSheet{
  }
  activateListeners(html){
   super.activateListeners(html);
+  html.find("[data-action=buy-evasive]").on("click",async()=>{try{await purchaseEvasiveFootwork(this.actor);this.render(false);}catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=select-nature]").on("change",async event=>{
     const name=event.currentTarget.value;
     if(!NATURE_CHOICES.includes(name)){ui.notifications.warn("Outworlder and custom Natures require a future GM-only workflow");return;}
