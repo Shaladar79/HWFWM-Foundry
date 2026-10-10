@@ -314,3 +314,21 @@ export function natureSummary(nature,rank){
  manaBonus:gifts.filter(g=>g.effect==="manaPerRank"||g.effect==="tireless").reduce((n,g)=>n+(g.effect==="manaPerRank"?g.value*tier:0),0),
  staminaBonus:gifts.filter(g=>g.effect==="tireless").reduce((n,g)=>n+g.value*tier,0)};
 }
+
+export function natureCheckBonus(nature,rank,{attribute="",subtype="",purpose=""}={}){
+ const tier=rankTier(rank);
+ return natureGifts(nature).reduce((bonus,g)=>{
+  if(g.effect==="powerPerRank"&&attribute==="power")return bonus+g.value*tier;
+  if(g.effect==="speedPerRank"&&attribute==="speed")return bonus+g.value*tier;
+  if(g.effect==="hearingPerRank"&&purpose==="hearing")return bonus+g.value*tier;
+  if(g.effect==="dangerSense"&&purpose==="danger")return bonus+g.value;
+  if(g.effect==="manaIntegrity"&&purpose==="mana-drain-resist")return bonus+5;
+  if(g.effect==="tireless"&&purpose==="stamina-drain-resist")return bonus+5;
+  if(g.effect.startsWith("affinity:")&&g.effect.slice(9)===subtype.toLowerCase())return bonus+g.value;
+  return bonus;
+ },0);
+}
+export function natureEarnedXP(nature,amount){
+ if(!Number.isSafeInteger(amount)||amount<0)throw Error("Invalid XP award");
+ return Math.floor(amount*(nature==="Human"?1.05:1));
+}
