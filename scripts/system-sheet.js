@@ -1,3 +1,4 @@
+import {createCharacterEssences} from "./character-setup.js";
 import {updateAbility} from "./ability-editor.js";
 import {bondEssence,awardXP} from "./p2-tools.js";
 import {ATTRIBUTES,RANKS,resolveRoll,rankDelta,spendAction} from "./rules.js";
@@ -20,6 +21,11 @@ export class HWFWMActorSheet extends ActorSheet{
  }
  activateListeners(html){
   super.activateListeners(html);
+  html.find("[data-action=create-character-essences]").on("click",async()=>{
+    const value=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
+    const input={first:value("first"),second:value("second"),third:value("third"),confluence:value("confluence"),firstAttribute:value("firstAttribute"),secondAttribute:value("secondAttribute"),thirdAttribute:value("thirdAttribute"),confluenceAttribute:value("confluenceAttribute")};
+    try{await createCharacterEssences(this.actor,input);ui.notifications.info("Four essences and twenty slots created");this.render(false);}catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=setup-essences]").on("click",async()=>{try{await initializeEssences(this.actor);this.render(false);}catch(e){ui.notifications.error(e.message);}});
   html.find("[data-action=advance-ability]").on("click",async e=>{const id=e.currentTarget.dataset.id;try{const plan=await advanceActorAbility(this.actor,id);ui.notifications.info(`Ability advanced for ${plan.cost} Essence XP`);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=bond-essence]").on("change",async e=>{try{await bondEssence(this.actor,e.currentTarget.dataset.id,e.currentTarget.value);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
