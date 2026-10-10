@@ -1,3 +1,4 @@
+import {projectedRank,rankGrant} from "./rank-awards.js";
 import {buildLedgerEntry,appendLedger} from "./character-profile.js";
 import {ATTRIBUTES,HERO_RANKS,minimumProgress,nextAbilityProgress} from "./rules.js";
 export function rankForAbilities(abilityGroups){
@@ -37,25 +38,29 @@ export async function advanceActorAbility(actor,abilityId){
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
   const plan=planAdvancement(ability.system,actor.system.rank,actor.system.essenceXP,{multiplier});
   if(!plan.ok)throw Error(plan.reason);
-  // Actor and item changes share the same turn; revert actor XP on item failure.
-  const originalXP=actor.system.essenceXP;
-  const originalRank=actor.system.rank;
-  const oldProgress=ability.system.rank+" "+ability.system.level;
-  await actor.update({"system.essenceXP":plan.remaining});
+  const oldRank=actor.system.rank;
+  const newRank=projectedRank([...actor.items],ability.id,plan.next);
+  const beforeTalent=Number(actor.system.talentXP);
+  let grants;
+  try{grants=JSON.parse(game.settings.get("hwfwm","rankTalentGrants")||"{}");}
+  catch{throw Error("Invalid Talent XP grant configuration JSON");}
+  const talentAward=rankGrant(oldRank,newRank,grants);
+  const history=actor.getFlag("hwfwm","xpHistory")??[];
+  const purchase=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:ability.system.rank+" "+ability.system.level,to:plan.next.rank+" "+plan.next.level});
+  const events=[purchase];
+  if(oldRank!==newRank){
+    events.push(buildLedgerEntry({kind:"rank",amount:0,reason:"Overall character rank advanced",rankFrom:oldRank,rankTo:newRank}));
+    if(talentAward>0)events.push(buildLedgerEntry({kind:"award",currency:"talentXP",amount:talentAward,reason:"Rank advancement to "+newRank}));
+  }
+  const previous={rank:ability.system.rank,level:ability.system.level};
+  await ability.update({"system.rank":plan.next.rank,"system.level":plan.next.level});
   try{
-    await ability.update({"system.rank":plan.next.rank,"system.level":plan.next.level});
+    await actor.update({"system.essenceXP":plan.remaining,"system.talentXP":beforeTalent+talentAward,"flags.hwfwm.xpHistory":events.reduce(appendLedger,history)});
   }catch(error){
-    await actor.update({"system.essenceXP":originalXP});
+    try{await ability.update({"system.rank":previous.rank,"system.level":previous.level});}catch(rollback){console.error("HWFWM rollback failed",rollback);}
     throw error;
   }
-  const history=actor.getFlag("hwfwm","xpHistory")??[];
-  const entry=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:oldProgress,to:plan.next.rank+" "+plan.next.level});
-  await actor.setFlag("hwfwm","xpHistory",appendLedger(history,entry));
-  if(actor.system.rank!==originalRank){
-    const updated=actor.getFlag("hwfwm","xpHistory")??[];
-    await actor.setFlag("hwfwm","xpHistory",appendLedger(updated,buildLedgerEntry({kind:"rank",amount:0,reason:"All four attributes reached the next rank",rankFrom:originalRank,rankTo:actor.system.rank})));
-  }
-  return plan;
+  return {...plan,oldRank,newRank,talentAward};
 }
 export async function initializeEssences(actor){
   if(!actor.isOwner||!["character","npc"].includes(actor.type)||actor.system.normal)throw Error("Not an essence-user you can edit");
