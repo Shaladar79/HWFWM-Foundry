@@ -4,7 +4,9 @@ import {STARTER_STONES,combineStones,addStone,normalizeStone} from "../scripts/a
 test("wiki seed contains known rarities",()=>{
  assert.equal(STARTER_STONES.find(s=>s.name==="Feast").rarity,"common");
  assert.equal(STARTER_STONES.find(s=>s.name==="Avatar").rarity,"legendary");
- assert.equal(STARTER_STONES.find(s=>s.name==="Wind").rarity,"unknown");
+ assert.equal(STARTER_STONES.find(s=>s.name==="Wind").rarity,"common");
+ assert.equal(STARTER_STONES.find(s=>s.name==="Radiant").rarity,"rare");
+ assert.equal(STARTER_STONES.filter(s=>s.rarity==="unknown").length,0);
 });
 test("GM-defined stones can expand catalog",()=>{
  const custom=addStone([],{name:"Falling Star",rarity:"epic",description:"Campaign-created"});
