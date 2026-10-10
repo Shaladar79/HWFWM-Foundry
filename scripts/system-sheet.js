@@ -1,3 +1,4 @@
+import {readCatalog,registerCustomEssence,catalogOptions} from "./essence-catalog.js";
 import {createCharacterEssences} from "./character-setup.js";
 import {updateAbility} from "./ability-editor.js";
 import {bondEssence,awardXP} from "./p2-tools.js";
@@ -12,6 +13,7 @@ export class HWFWMActorSheet extends ActorSheet{
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
   data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite})):[]};});
+  data.catalogEssences=catalogOptions(readCatalog());
   data.hasEssences=essences.length>0;
   data.isGM=game.user.isGM;
   data.recentXP=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-10).reverse();
@@ -21,6 +23,11 @@ export class HWFWMActorSheet extends ActorSheet{
  }
  activateListeners(html){
   super.activateListeners(html);
+  html.find("[data-action=add-custom-essence]").on("click",async()=>{
+    const val=k=>String(html.find('[data-catalog-field="'+k+'"]').val()??"");
+    try{await registerCustomEssence({name:val("name"),rarity:val("rarity"),description:val("description")});ui.notifications.info("Custom essence added");this.render(false);}
+    catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=create-character-essences]").on("click",async()=>{
     const value=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
     const input={first:value("first"),second:value("second"),third:value("third"),confluence:value("confluence"),firstAttribute:value("firstAttribute"),secondAttribute:value("secondAttribute"),thirdAttribute:value("thirdAttribute"),confluenceAttribute:value("confluenceAttribute")};
