@@ -1,8 +1,9 @@
 export const RARITIES=["common","uncommon","rare","epic","legendary","unknown"];
 export const STARTER_ESSENCES=[
  {name:"Earth",rarity:"common"},{name:"Fire",rarity:"common"},{name:"Might",rarity:"common"},
+ {name:"Wood",rarity:"common"},{name:"Brush",rarity:"common"},
  {name:"Magic",rarity:"common"},{name:"Sword",rarity:"common"},{name:"Wind",rarity:"common"},
- {name:"Blood",rarity:"uncommon"},{name:"Dark",rarity:"uncommon"},
+ {name:"Lurker",rarity:"uncommon"},{name:"Blood",rarity:"uncommon"},{name:"Dark",rarity:"uncommon"},
  {name:"Death",rarity:"uncommon"},{name:"Life",rarity:"uncommon"},
  {name:"Lightning",rarity:"uncommon"},{name:"Crystal",rarity:"rare"},
  {name:"Moon",rarity:"rare"},{name:"Sun",rarity:"rare"},{name:"Star",rarity:"rare"},
