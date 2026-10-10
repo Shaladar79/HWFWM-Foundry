@@ -1,3 +1,4 @@
+import {buildLedgerEntry,appendLedger} from "./character-profile.js";
 import {ATTRIBUTES} from "./rules.js";
 export function planBondSwap(items,id,target){
  if(!ATTRIBUTES.includes(target))throw Error("Invalid attribute");
@@ -21,7 +22,7 @@ export async function awardXP(actor,currency,amount,reason="Story milestone"){
  if(!["character","npc"].includes(actor.type))throw Error("Not an essence-user");
  const balance=Number(actor.system[currency]??0);
  const history=actor.getFlag("hwfwm","xpHistory")??[];
- const entry={currency,amount,reason:String(reason).slice(0,160),time:Date.now()};
- await actor.update({[`system.${currency}`]:balance+amount,"flags.hwfwm.xpHistory":[...history,entry].slice(-250)});
+ const entry=buildLedgerEntry({kind:"award",currency,amount,reason});
+ await actor.update({[`system.${currency}`]:balance+amount,"flags.hwfwm.xpHistory":appendLedger(history,entry)});
  return entry;
 }
