@@ -1,3 +1,4 @@
+import {updateAbility} from "./ability-editor.js";
 import {bondEssence,awardXP} from "./p2-tools.js";
 import {ATTRIBUTES,RANKS,resolveRoll,rankDelta,spendAction} from "./rules.js";
 import {advanceActorAbility,initializeEssences,advancementCost} from "./advancement.js";
@@ -9,7 +10,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier})})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite})):[]};});
   data.hasEssences=essences.length>0;
   data.isGM=game.user.isGM;
   data.recentXP=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-10).reverse();
@@ -24,6 +25,15 @@ export class HWFWMActorSheet extends ActorSheet{
   html.find("[data-action=bond-essence]").on("change",async e=>{try{await bondEssence(this.actor,e.currentTarget.dataset.id,e.currentTarget.value);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=award-xp]").on("click",async e=>{try{const currency=e.currentTarget.dataset.currency;const amount=Number(html.find('[data-award-amount]').val());const reason=String(html.find('[data-award-reason]').val());await awardXP(this.actor,currency,amount,reason);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=rename-essence]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
+  html.find("[data-action=save-ability]").on("click",async event=>{
+    const id=event.currentTarget.dataset.id;
+    const row=html.find('[data-editor-id="'+id+'"]');
+    const read=key=>row.find('[data-edit-field="'+key+'"]').val();
+    try{
+      await updateAbility(this.actor,id,{name:read("name"),actionCost:read("actionCost"),manaCost:read("manaCost"),staminaCost:read("staminaCost"),awakeningStone:read("awakeningStone"),favorite:row.find('[data-edit-field="favorite"]').prop("checked")});
+      this.render(false);
+    }catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=rename-ability]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
   html.find("[data-action=roll]").on("click",async e=>{const attr=e.currentTarget.dataset.attribute??"power";const tn=Number(this.actor.system.attributes?.[attr]?.tn??30);const roll=await(new Roll("1d100")).evaluate();const outcome=resolveRoll(roll.total,tn);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${attr.toUpperCase()} TN ${tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});});
   html.find("[data-action=combat]").on("click",()=>new HWFWMCombatPanel(this.actor).render(true));
