@@ -1,0 +1,24 @@
+import {planNatureHit} from "./nature-combat.js";
+const pending=new Set();
+export function damageUpdate(plan){
+ const p=plan.pools;
+ return {"system.resources.shield.value":p.shield,"system.resources.mana.value":p.mana,"system.resources.armor.value":p.armor,"system.resources.lifeForce.extra":p.extraLifeForce,"system.resources.lifeForce.value":p.lifeForce};
+}
+export async function applyNatureHit(target,{amount,physical=false,subtype="",ancestry="",adaptiveSubtype="",hitId}){
+ if(!game.user.isGM)throw Error("Only a GM may apply damage from this panel");
+ if(!target?.id||!target.isOwner)throw Error("No permission for target");
+ if(!Number.isSafeInteger(amount)||amount<0)throw Error("Damage must be a nonnegative integer");
+ const id=String(hitId??"").trim();
+ if(!id||id.length>120)throw Error("A unique hit identifier is required");
+ const key=target.uuid+":"+id;
+ if(pending.has(key))throw Error("This hit is already being applied");
+ pending.add(key);
+ try{
+  const history=target.getFlag("hwfwm","appliedNatureHits")??[];
+  if(history.includes(id))throw Error("This hit has already been applied");
+  const plan=planNatureHit(target,amount,{physical,subtype,ancestry,adaptiveSubtype});
+  const next=[...history,id].slice(-200);
+  await target.update({...damageUpdate(plan),"flags.hwfwm.appliedNatureHits":next});
+  return plan;
+ }finally{pending.delete(key);}
+}
