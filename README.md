@@ -19,3 +19,6 @@ GitHub Actions runs `npm test` and JavaScript syntax/manifest checks on commits.
 
 Old project available under branch `backup/legacy-before-rebuild`.
 See `docs/rules.md` for established and provisional mechanics.
+
+## Confluence selection (P2)
+The character creator now dynamically lists matching documented confluences for the three chosen primary essences (order-independent). Restricted outcomes are labeled for GM review. Players can select **Custom / GM-approved** to supply an alternative. The catalog is curated and incomplete; lookup does not automatically validate custom outcomes. The live Foundry smoke test remains deferred.
