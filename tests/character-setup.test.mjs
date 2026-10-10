@@ -1,0 +1,4 @@
+import test from "node:test";import assert from "node:assert/strict";import {validateEssenceSetup} from "../scripts/character-setup.js";
+const input={first:"Earth",second:"Might",third:"Hammer",confluence:"Onslaught",firstAttribute:"spirit",secondAttribute:"power",thirdAttribute:"speed",confluenceAttribute:"recovery"};
+test("three primaries, confluence, and any four unique bonds",()=>{const result=validateEssenceSetup(input);assert.deepEqual(result.assignment,["spirit","power","speed","recovery"]);assert.equal(result.names[3],"Onslaught");});
+test("duplicate essences and attributes rejected",()=>{assert.throws(()=>validateEssenceSetup({...input,third:"Earth"}));assert.throws(()=>validateEssenceSetup({...input,thirdAttribute:"power"}));assert.throws(()=>validateEssenceSetup({...input,confluence:""}));});
