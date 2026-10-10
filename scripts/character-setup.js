@@ -10,6 +10,7 @@ export function validateEssenceSetup(input){
 }
 export async function createCharacterEssences(actor,input){
  if(!actor.isOwner||!["character","npc"].includes(actor.type)||actor.system.normal)throw Error("Invalid character or permission");
+ if(!String(actor.system.nature??"").trim()||!String(actor.system.role??"").trim())throw Error("Save Nature and Role before creating essences");
  if(actor.items.some(i=>i.type==="essence"||i.type==="ability"))throw Error("This character already has essence records");
  const {names,assignment}=validateEssenceSetup(input);
  const created=await actor.createEmbeddedDocuments("Item",names.map((name,i)=>({name,type:"essence",system:{bondedAttribute:assignment[i],confluence:i===3}})));
