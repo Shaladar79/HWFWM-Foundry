@@ -1,0 +1,21 @@
+name: Validate HWFWM Foundation
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run unit tests
+        run: npm test
+      - name: Check JavaScript syntax
+        run: |
+          for file in scripts/*.js tests/*.mjs; do node --check "$file"; done
+      - name: Validate package files
+        run: |
+          node -e "const fs=require('fs'); for(const f of ['system.json','template.json','package.json']) JSON.parse(fs.readFileSync(f,'utf8')); const m=JSON.parse(fs.readFileSync('system.json')); for(const f of [...m.esmodules,...m.styles]) if(!fs.existsSync(f)) throw Error('Missing '+f);"

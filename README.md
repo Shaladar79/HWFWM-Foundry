@@ -1,30 +1,32 @@
 # HWFWM — The System
 
-Independent fan-made Foundry VTT tabletop system inspired by *He Who Fights with Monsters*. Unofficial, not endorsed by the author or publisher.
+Independent, unofficial fan-made Foundry VTT tabletop system inspired by *He Who Fights with Monsters*. Not affiliated with the author or publisher.
 
-## Status
+## Milestone P1 status
 
-**0.1.0 foundation (not yet play-tested).** Rebuilt from scratch in October 2026. The previous implementation is preserved on branch `backup/legacy-before-rebuild`.
+**Foundation implemented; unit validation automated; live Foundry verification pending.**
 
-## Installing locally
+The prior project is preserved at `backup/legacy-before-rebuild`. Current code targets **Foundry VTT v13**; the legacy ActorSheet API is deprecated and will need migration before targeting later versions.
 
-Place this repository as `Data/systems/hwfwm` in the Foundry user data folder, restart Foundry, then select **HWFWM — The System** when creating a world. This is an initial implementation targeting Foundry v13; v14 compatibility and actual application installation remain to be validated.
+- Actor types: Character, NPC, Monster, Familiar
+- Item types: Essence, Ability, Talent, Skill, Equipment, Nature
+- Rank calculations and gated ability progression
+- 1d100 resolver, Tyranny of Rank, layered damage helpers
+- White, rank-colored seven-tab sheet and preliminary combat window
+- Starting Life Force 40, Mana 30, Stamina 30 with derived attribute progress
+- GitHub Actions validation and Node unit tests
 
-## Implemented foundations
+## Manual install and smoke test (required)
 
-- Four Actor types: character, NPC, monster, familiar
-- Essence, ability, talent, skill, equipment and nature Item types
-- Individual ability → attribute → character rank calculation
-- Rule helpers for 1d100, critical 01–05 (+3 successes), 10-point success margins, hostile and beneficial Tyranny of Rank
-- Derived Life Force (40), Mana (30), Stamina (30) with progression and configurable essence resource bonuses
-- Combat movement base 6 with cumulative rank bonuses, Movement action cost 2
-- Rank-themed white character sheet with tabs and first-pass combat panel
-- Separate shields, Mana shielding, armor, extra Life Force and Life Force damage helper
+1. Copy this repository into the Foundry user-data directory: `Data/systems/hwfwm/`.
+2. Restart **Foundry v13** and create a world using **HWFWM — The System**.
+3. Create one Actor of each type: Character, NPC, Monster, Familiar.
+4. Open each sheet, switch all tabs and edit Nature and resource fields.
+5. Add four Essence items assigned to Power/Speed/Spirit/Recovery and five Ability items per Essence with `essenceId` equal to that Essence item's ID (currently requires manual item data setup).
+6. Verify calculated attributes show Iron 0, then test rank progression and d100 rolls.
+7. Open the separate combat panel. Action Score is manually seeded as the `hwfwm.actionScore` actor flag for this first milestone.
+8. Report any console errors and installation problems.
 
-## Planned / not yet functional
+**Not yet implemented:** full character wizard, item editing UI, automated combat countdown, GM XP awards/spending, AP designer, effects application, familiars syncing, and release packaging. A live Foundry UI smoke test is necessary before calling P1 fully validated.
 
-The foundation is **not a completed game**. XP spending and award automation, full ability point-buy editor, NPC Normal rules refinement, character creation wizard, shield depletion triggers, item slot enforcement, familiar linking, turn-order combat engine, and guided targeting/effect application require subsequent milestones. Combat panel currently only deducts Action Score manually initialized via an actor flag; it does not run the initiative tracker. No Foundry UI smoke test has been run.
-
-## Rules
-
-See [docs/rules.md](docs/rules.md) for established mechanics and outstanding balance decisions. Never infer an attribute from fewer than five linked abilities.
+See `docs/rules.md` for the rules contract.
