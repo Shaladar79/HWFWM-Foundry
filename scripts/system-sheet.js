@@ -1,3 +1,4 @@
+import {validateIdentity} from "./character-profile.js";
 import {confluenceOptions} from "./confluences.js";
 import {readCatalog,registerCustomEssence,catalogOptions} from "./essence-catalog.js";
 import {createCharacterEssences} from "./character-setup.js";
@@ -17,6 +18,8 @@ export class HWFWMActorSheet extends ActorSheet{
   data.catalogEssences=catalogOptions(readCatalog());
   data.hasEssences=essences.length>0;
   data.isGM=game.user.isGM;
+  data.ledger=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-30).reverse();
+  data.hasIdentity=Boolean(String(s.nature??"").trim()&&String(s.role??"").trim());
   data.recentXP=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-10).reverse();
   for(const g of data.essenceGroups)g.bondOptions=ATTRIBUTES.map(a=>({value:a,label:a,selected:a===g.key}));
   data.abilityItems=this.actor.items.filter(i=>i.type==="ability");
@@ -24,6 +27,9 @@ export class HWFWMActorSheet extends ActorSheet{
  }
  activateListeners(html){
   super.activateListeners(html);
+  html.find("[data-action=save-profile]").on("click",async()=>{
+    try{const nature=html.find('[data-profile="nature"]').val(),role=html.find('[data-profile="role"]').val();const clean=validateIdentity({nature,role});await this.actor.update({"system.nature":clean.nature,"system.role":clean.role});this.render(false);}catch(err){ui.notifications.warn(err.message);}
+  });
   html.find("[data-action=add-custom-essence]").on("click",async()=>{
     const val=k=>String(html.find('[data-catalog-field="'+k+'"]').val()??"");
     try{await registerCustomEssence({name:val("name"),rarity:val("rarity"),description:val("description")});ui.notifications.info("Custom essence added");this.render(false);}
