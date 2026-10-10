@@ -11,6 +11,7 @@ Hooks.once("init",()=>{
  game.settings.register("hwfwm","essenceXpMultiplier",{name:"Essence XP cost multiplier (provisional)",hint:"Adjust the cost of ability advancement pending final progression balancing.",scope:"world",config:true,type:Number,default:10});
  game.settings.register("hwfwm","customEssences",{name:"Custom Essences",hint:"GM-defined essence catalog additions",scope:"world",config:false,type:Array,default:[]});
  game.settings.register("hwfwm","customAwakeningStones",{name:"Custom Awakening Stones",scope:"world",config:false,type:Array,default:[]});
+ game.settings.register("hwfwm","rankTalentGrants",{name:"Talent XP rank grants (provisional)",hint:"JSON mapping of ranks to GM-approved amounts. Defaults to zero until configured.",scope:"world",config:true,type:String,default:"{}"});
  Handlebars.registerHelper("eq",(a,b)=>a===b);
  Handlebars.registerHelper("titlecase",str=>String(str??"").replace(/\b\w/g,c=>c.toUpperCase()));
 });
