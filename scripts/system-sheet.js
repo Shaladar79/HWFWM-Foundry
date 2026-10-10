@@ -1,3 +1,4 @@
+import {confluenceOptions} from "./confluences.js";
 import {readCatalog,registerCustomEssence,catalogOptions} from "./essence-catalog.js";
 import {createCharacterEssences} from "./character-setup.js";
 import {updateAbility} from "./ability-editor.js";
@@ -27,6 +28,12 @@ export class HWFWMActorSheet extends ActorSheet{
     const val=k=>String(html.find('[data-catalog-field="'+k+'"]').val()??"");
     try{await registerCustomEssence({name:val("name"),rarity:val("rarity"),description:val("description")});ui.notifications.info("Custom essence added");this.render(false);}
     catch(error){ui.notifications.warn(error.message);}
+  });
+  html.find("[data-action=suggest-confluences]").on("click",()=>{
+    const read=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
+    const options=confluenceOptions(["first","second","third"].map(read));
+    const message=options.length?options.map(o=>o.name+(o.restricted?" (restricted)":"")).join(", "):"No documented match in the initial catalog; GM may approve another confluence.";
+    ui.notifications.info(message,{permanent:true});
   });
   html.find("[data-action=create-character-essences]").on("click",async()=>{
     const value=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
