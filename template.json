@@ -3,135 +3,195 @@
     "types": [
       "character",
       "npc",
-      "monster"
+      "monster",
+      "familiar"
     ],
     "templates": {
-      "base": {
-        "description": "",
-        "rank": {
-          "id": "normal",
-          "level": 0
-        },
-        "attributes": {
-          "power": {
-            "level": 0,
-            "baseScore": 40,
-            "levelModifier": 0,
-            "racialModifier": 0,
-            "equipmentModifier": 0,
-            "auraModifier": 0,
-            "abilityModifier": 0,
-            "total": 40
-          },
-          "speed": {
-            "level": 0,
-            "baseScore": 40,
-            "levelModifier": 0,
-            "racialModifier": 0,
-            "equipmentModifier": 0,
-            "auraModifier": 0,
-            "abilityModifier": 0,
-            "total": 40
-          },
-          "spirit": {
-            "level": 0,
-            "baseScore": 40,
-            "levelModifier": 0,
-            "racialModifier": 0,
-            "equipmentModifier": 0,
-            "auraModifier": 0,
-            "abilityModifier": 0,
-            "total": 40
-          },
-          "recovery": {
-            "level": 0,
-            "baseScore": 40,
-            "levelModifier": 0,
-            "racialModifier": 0,
-            "equipmentModifier": 0,
-            "auraModifier": 0,
-            "abilityModifier": 0,
-            "total": 40
-          }
-        },
+      "resources": {
         "lifeForce": {
-          "value": 10,
-          "max": 10
+          "value": 40,
+          "max": 40,
+          "extra": 0
         },
         "mana": {
-          "value": 10,
-          "max": 10
+          "value": 30,
+          "max": 30,
+          "extra": 0
         },
         "stamina": {
-          "value": 10,
-          "max": 10
+          "value": 30,
+          "max": 30,
+          "extra": 0
+        },
+        "armor": {
+          "value": 0,
+          "max": 0
+        },
+        "shield": {
+          "value": 0,
+          "max": 0
+        },
+        "manaShield": {
+          "active": false,
+          "ratio": 1
+        },
+        "wounds": {
+          "value": 0,
+          "max": 0
+        },
+        "will": {
+          "value": 0,
+          "max": 0
+        },
+        "reconstitution": {
+          "value": 0,
+          "max": 0
+        },
+        "authority": {
+          "value": 0,
+          "max": 0
         }
+      },
+      "essenceUser": {
+        "nature": "",
+        "role": "",
+        "essenceXP": 0,
+        "talentXP": 0,
+        "talentSpent": 0,
+        "essences": {
+          "power": "",
+          "speed": "",
+          "spirit": "",
+          "recovery": ""
+        },
+        "rank": "iron",
+        "attributes": {
+          "power": {
+            "rank": "iron",
+            "level": 0,
+            "tn": 30
+          },
+          "speed": {
+            "rank": "iron",
+            "level": 0,
+            "tn": 30
+          },
+          "spirit": {
+            "rank": "iron",
+            "level": 0,
+            "tn": 30
+          },
+          "recovery": {
+            "rank": "iron",
+            "level": 0,
+            "tn": 30
+          }
+        },
+        "movement": 6
       }
     },
     "character": {
       "templates": [
-        "base"
+        "resources",
+        "essenceUser"
       ]
     },
     "npc": {
       "templates": [
-        "base"
-      ]
+        "resources",
+        "essenceUser"
+      ],
+      "normal": false
     },
     "monster": {
       "templates": [
-        "base"
-      ]
+        "resources"
+      ],
+      "rank": "iron",
+      "level": 0,
+      "nature": "",
+      "movement": 6,
+      "attributes": {
+        "power": 30,
+        "speed": 30,
+        "spirit": 30,
+        "recovery": 30
+      }
+    },
+    "familiar": {
+      "templates": [
+        "resources"
+      ],
+      "rank": "iron",
+      "level": 0,
+      "familiarType": "bonded",
+      "ownerUuid": "",
+      "sourceAbilityUuid": "",
+      "status": "active",
+      "movement": 6,
+      "attributes": {
+        "power": 30,
+        "speed": 30,
+        "spirit": 30,
+        "recovery": 30
+      }
     }
   },
   "Item": {
     "types": [
-      "ability",
       "essence",
+      "ability",
+      "talent",
+      "skill",
       "equipment",
-      "consumable"
+      "nature"
     ],
-    "templates": {
-      "base": {
-        "description": ""
+    "essence": {
+      "bondedAttribute": "",
+      "confluence": false,
+      "resourceBonuses": {
+        "lifeForce": 0,
+        "mana": 0,
+        "stamina": 0
       }
     },
     "ability": {
-      "templates": [
-        "base"
-      ],
-      "rank": "normal",
-      "abilityType": "",
-      "actionType": "",
-      "actionCost": 1,
-      "cost": {
-        "resource": "none",
-        "amount": 0
-      }
+      "essenceId": "",
+      "rank": "iron",
+      "level": 0,
+      "actionCost": 5,
+      "manaCost": 0,
+      "staminaCost": 0,
+      "actionType": "hostile",
+      "apSpent": 0,
+      "components": [],
+      "effects": [],
+      "favorite": false,
+      "awakeningStone": ""
     },
-    "essence": {
-      "templates": [
-        "base"
-      ],
-      "category": "essence",
-      "isConfluence": false
+    "talent": {
+      "cost": 0,
+      "requirements": [],
+      "modifiers": []
+    },
+    "skill": {
+      "attribute": "power",
+      "trained": true,
+      "specialization": false
     },
     "equipment": {
-      "templates": [
-        "base"
-      ],
-      "quantity": 1,
-      "equipped": false
+      "slot": "",
+      "rank": "iron",
+      "durability": {
+        "value": 0,
+        "base": 0
+      },
+      "repairMode": "manual",
+      "modifiers": []
     },
-    "consumable": {
-      "templates": [
-        "base"
-      ],
-      "quantity": 1,
-      "uses": {
-        "value": 1,
-        "max": 1
-      }
+    "nature": {
+      "traits": [],
+      "modifiers": []
     }
   }
 }

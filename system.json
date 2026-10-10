@@ -1,42 +1,44 @@
 {
   "id": "hwfwm",
-  "title": "HWFWM",
-  "description": "An unofficial Foundry Virtual Tabletop game system inspired by essence-based progression fantasy.",
-  "version": "0.0.5",
+  "title": "HWFWM — The System",
+  "description": "Independent fan tabletop system foundation",
+  "version": "0.1.0",
   "compatibility": {
     "minimum": "13",
-    "verified": "13",
-    "maximum": "13"
+    "verified": "13"
   },
   "authors": [
     {
-      "name": "Shaladar"
+      "name": "Community project"
     }
   ],
-  "url": "https://github.com/Shaladar79/HWFWM-Foundry",
-  "manifest": "https://github.com/Shaladar79/HWFWM-Foundry/releases/latest/download/system.json",
-  "download": "https://github.com/Shaladar79/HWFWM-Foundry/releases/latest/download/hwfwm.zip",
   "esmodules": [
-    "scripts/hwfwm.js"
+    "scripts/system.js"
   ],
   "styles": [
-    "styles/hwfwm.css"
+    "styles/system.css"
   ],
-  "languages": [],
-  "packs": [],
   "documentTypes": {
     "Actor": {
       "character": {},
       "npc": {},
-      "monster": {}
+      "monster": {},
+      "familiar": {}
     },
     "Item": {
-      "ability": {},
       "essence": {},
+      "ability": {},
+      "talent": {},
+      "skill": {},
       "equipment": {},
-      "consumable": {}
+      "nature": {}
     }
   },
-  "socket": false,
-  "initiative": "1d20"
+  "grid": {
+    "distance": 1,
+    "units": "spaces"
+  },
+  "primaryTokenAttribute": "resources.lifeForce",
+  "url": "https://github.com/Shaladar79/HWFWM-Foundry",
+  "manifest": "https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/system.json"
 }

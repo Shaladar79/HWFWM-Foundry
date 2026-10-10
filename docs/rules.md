@@ -1,0 +1,22 @@
+# Rules contract (work in progress)
+
+- Nature replaces race. Post-Cosmic Throne setting; players choose an eligible confluence from available outcomes.
+- Four freely bonded essences, one per Power, Speed, Spirit, Recovery; five abilities each.
+- Attribute progression = lowest of the five ability rank/levels. Character overall rank = lowest attribute rank. Next rank level 0 allowed; level 1 locked until overall rank catches up.
+- Iron/Bronze/Silver/Gold/Diamond/Transcendent (Normal also for NPCs). Base TN at rank 0 = 30/40/60/90/130/180%, with +1/+2/+3/+4/+5/+6 per level. Numbers above 100 are allowed.
+- Skill +5%, specialization +5%, plus Nature, essence, equipment and circumstance modifiers.
+- d100 roll under TN, one success at/below TN, +1 each full 10 points below. Natural 01–05 always succeeds and grants +3 successes (minimum four).
+- Tyranny of Rank affects hostile rolls ±10 per rank; beneficial rolls only gain +10 per rank the actor exceeds the recipient. No direct effect multipliers.
+- Ability effect = per-success magnitude × successes; configurable components may separately scale strength and duration.
+- XP pools: one Essence XP for the twenty abilities, one Talent XP awarded at creation/overall rank-ups/GM story milestones; Ability Points at individual ability rank-ups. AP drawback refunds capped provisionally at 50%.
+- Life Force starts at 40, Mana/Stamina 30. Power contributes Life Force, Spirit Mana, Speed Stamina; Recovery contributes half progression to Life Force and Stamina and regeneration (rates TBD). Small essence-based contributions scale with bonded progression.
+- Damage layer order: Normal Shield → Mana Shield → Armor durability → Extra Life Force → Life Force. One normal and one mana shield slot; shields persist until replaced/depleted. Depletion can trigger explosions; replacement does not.
+- Armor single whole-set slot; fixed accessory slots. Durability = base by armor type × rank multiplier 1 through 6; repair depends on individual item.
+- Silver Wounds, Gold Will, Diamond Reconstitution, Transcendent Authority.
+- Countdown Action Score: 1d20 + initiative bonuses per round; spend action costs and re-enter order on new score. No overspending. Movement cost 2; base 6 + rank gains Bronze +2, Silver +3, Gold +5, Diamond +8, Transcendent +12; Nature/essence/talents can alter it.
+- Simple actions: speaking, drawing weapon, readying belt potion free. Storage retrieval costs AP; other costs TBD.
+- Bonded familiar naturally occurring, permanently dead if killed. Astral summoned familiar may return after manifestation loss but can refuse. All familiar power derives from linked essence ability, not directly from owner's rank.
+- Characters/NPCs share essence system; Normal rank NPC option. Monsters use non-essence abilities. Full details and progression are open design work.
+
+## Provisional mechanics
+Resource regeneration rates, exact Essence XP costs, Talent XP awards/costs, equipment effect catalogs, AP component costs, damage tuning, and some sheet workflows remain undecided. Do not treat proposed values as final beyond stated baselines.
