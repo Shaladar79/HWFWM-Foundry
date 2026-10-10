@@ -1,0 +1,4 @@
+import test from "node:test";import assert from "node:assert/strict";import {planEvasivePurchase} from "../scripts/nature-talents.js";
+test("Lehenik buys one additional rank after free Nature rank",()=>{const plan=planEvasivePurchase("Lehenik",0,25,10);assert.equal(plan.next.ranks,2);assert.equal(plan.balanceAfter,15);assert.equal(plan.next.physicalAttackTNModifier,-10);assert.throws(()=>planEvasivePurchase("Lehenik",1,25,10));});
+test("other Natures can purchase only one normal rank",()=>{assert.equal(planEvasivePurchase("Human",0,25,10).next.ranks,1);assert.throws(()=>planEvasivePurchase("Human",1,25,10));});
+test("unconfigured cost and insufficient XP prevent purchases",()=>{assert.throws(()=>planEvasivePurchase("Lehenik",0,25,0));assert.throws(()=>planEvasivePurchase("Lehenik",0,5,10));});
