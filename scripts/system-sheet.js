@@ -1,3 +1,4 @@
+import {applyNatureHit} from "./nature-damage-application.js";
 import {rollPhysicalAttack} from "./nature-combat.js";
 import {evasiveFootwork} from "./nature-effects.js";
 import {purchaseEvasiveFootwork} from "./nature-talents.js";
@@ -95,6 +96,18 @@ export class HWFWMActorSheet extends ActorSheet{
   });
   html.find("[data-action=rename-ability]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
   html.find("[data-action=roll]").on("click",async e=>{const attr=e.currentTarget.dataset.attribute??"power";const tn=Number(this.actor.system.attributes?.[attr]?.tn??30)+natureCheckBonus(this.actor.system.nature,this.actor.system.rank,{attribute:attr});const roll=await(new Roll("1d100")).evaluate();const outcome=resolveRoll(roll.total,tn);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${attr.toUpperCase()} TN ${tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});});
+  html.find("[data-action=apply-nature-hit]").on("click",async()=>{try{
+    const amount=Number(html.find('[data-hit-field="amount"]').val());
+    const hitId=String(html.find('[data-hit-field="id"]').val()??"");
+    const subtype=String(html.find('[data-hit-field="subtype"]').val()??"").trim().toLowerCase();
+    const physical=Boolean(html.find('[data-hit-field="physical"]').prop("checked"));
+    const ancestry=String(this.actor.system.dragonAncestry??"").toLowerCase();
+    const adaptiveSubtype=String(this.actor.getFlag("hwfwm","adaptiveSubtype")??"").toLowerCase();
+    const plan=await applyNatureHit(this.actor,{amount,hitId,subtype,physical,ancestry,adaptiveSubtype});
+    ui.notifications.info(`Applied ${plan.reduced} damage (prevented ${plan.prevented})`);
+    this.render(false);
+   }catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=physical-attack]").on("click",async()=>{try{const target=game.user.targets.first()?.actor;await rollPhysicalAttack(this.actor,target,{attribute:"power",attackType:"physical"});}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=combat]").on("click",()=>new HWFWMCombatPanel(this.actor).render(true));
   html.find("[data-action=rank-roll]").on("click",async e=>{const type=e.currentTarget.dataset.type??"hostile",target=game.user.targets.first()?.actor,tn=Number(this.actor.system.attributes?.power?.tn??30)+natureCheckBonus(this.actor.system.nature,this.actor.system.rank,{attribute:"power"});const roll=await(new Roll("1d100")).evaluate(),final=tn+rankDelta(this.actor.system.rank,target?.system.rank??this.actor.system.rank,type),outcome=resolveRoll(roll.total,final);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${type} TN ${final}% — ${outcome.successes} successes`});});
