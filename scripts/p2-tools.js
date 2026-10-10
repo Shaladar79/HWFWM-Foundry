@@ -1,3 +1,4 @@
+import {natureEarnedXP} from "./nature-catalog.js";
 import {buildLedgerEntry,appendLedger} from "./character-profile.js";
 import {ATTRIBUTES} from "./rules.js";
 export function planBondSwap(items,id,target){
@@ -21,8 +22,9 @@ export async function awardXP(actor,currency,amount,reason="Story milestone"){
  if(!["essenceXP","talentXP"].includes(currency)||!validAward(amount))throw Error("Invalid XP award");
  if(!["character","npc"].includes(actor.type))throw Error("Not an essence-user");
  const balance=Number(actor.system[currency]??0);
+ const granted=natureEarnedXP(actor.system.nature,amount);
  const history=actor.getFlag("hwfwm","xpHistory")??[];
- const entry=buildLedgerEntry({kind:"award",currency,amount,reason});
- await actor.update({[`system.${currency}`]:balance+amount,"flags.hwfwm.xpHistory":appendLedger(history,entry)});
+ const entry=buildLedgerEntry({kind:"award",currency,amount:granted,reason});
+ await actor.update({[`system.${currency}`]:balance+granted,"flags.hwfwm.xpHistory":appendLedger(history,entry)});
  return entry;
 }
