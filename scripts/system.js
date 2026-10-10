@@ -1,3 +1,4 @@
+import * as natureEffects from "./nature-effects.js";
 import {listStones,registerStone} from "./awakening-stones.js";
 import {readCatalog,registerCustomEssence} from "./essence-catalog.js";
 import {HWFWMActor} from "./system-actor.js";
@@ -16,7 +17,7 @@ Hooks.once("init",()=>{
  Handlebars.registerHelper("titlecase",str=>String(str??"").replace(/\b\w/g,c=>c.toUpperCase()));
 });
 Hooks.once("ready",()=>{
- game.hwfwm={resolveRoll,rankDelta,advanceActorAbility,initializeEssences,readCatalog,registerCustomEssence,listStones,registerStone,roll:async({tn=30,actorRank="iron",targetRank="iron",type="neutral",flavor="System Check"}={})=>{
+ game.hwfwm={natureEffects,resolveRoll,rankDelta,advanceActorAbility,initializeEssences,readCatalog,registerCustomEssence,listStones,registerStone,roll:async({tn=30,actorRank="iron",targetRank="iron",type="neutral",flavor="System Check"}={})=>{
  const finalTN=Number(tn)+rankDelta(actorRank,targetRank,type);
  const roll=await(new Roll("1d100")).evaluate();
  const outcome=resolveRoll(roll.total,finalTN);
