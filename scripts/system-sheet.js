@@ -1,3 +1,4 @@
+import {listStones,registerStone} from "./awakening-stones.js";
 import {validateIdentity} from "./character-profile.js";
 import {confluenceOptions} from "./confluences.js";
 import {readCatalog,registerCustomEssence,catalogOptions} from "./essence-catalog.js";
@@ -16,6 +17,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
   data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
+  data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
   data.isGM=game.user.isGM;
   data.ledger=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-30).reverse();
@@ -30,6 +32,7 @@ export class HWFWMActorSheet extends ActorSheet{
   html.find("[data-action=save-profile]").on("click",async()=>{
     try{const nature=html.find('[data-profile="nature"]').val(),role=html.find('[data-profile="role"]').val();const clean=validateIdentity({nature,role});await this.actor.update({"system.nature":clean.nature,"system.role":clean.role});this.render(false);}catch(err){ui.notifications.warn(err.message);}
   });
+  html.find("[data-action=add-custom-stone]").on("click",async()=>{const value=k=>String(html.find('[data-stone-field="'+k+'"]').val()??"");try{await registerStone({name:value("name"),rarity:value("rarity"),description:value("description")});ui.notifications.info("Awakening Stone added");this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=add-custom-essence]").on("click",async()=>{
     const val=k=>String(html.find('[data-catalog-field="'+k+'"]').val()??"");
     try{await registerCustomEssence({name:val("name"),rarity:val("rarity"),description:val("description")});ui.notifications.info("Custom essence added");this.render(false);}
