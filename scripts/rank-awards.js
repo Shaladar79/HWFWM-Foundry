@@ -1,6 +1,7 @@
 import {ATTRIBUTES,HERO_RANKS,minimumProgress} from "./rules.js";
 export function derivedRankFromItems(items){
  const essences=items.filter(i=>i.type==="essence");
+ if(essences.length!==4||new Set(essences.map(e=>e.system.bondedAttribute)).size!==4)return "iron";
  const stages=ATTRIBUTES.map(attribute=>{
   const essence=essences.find(i=>i.system.bondedAttribute===attribute);
   const abilities=essence?items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id):[];
@@ -12,6 +13,7 @@ export function projectedRank(items,abilityId,next){
  return derivedRankFromItems(items.map(item=>item.id===abilityId?{...item,system:{...item.system,rank:next.rank,level:next.level}}:item));
 }
 export function rankGrant(from,to,amounts={}){
+ if(amounts===null||typeof amounts!=="object"||Array.isArray(amounts))throw Error("Invalid Talent XP grant mapping");
  const a=HERO_RANKS.indexOf(from),b=HERO_RANKS.indexOf(to);
  if(a<0||b<0||b<a)throw Error("Invalid rank transition");
  return HERO_RANKS.slice(a+1,b+1).reduce((total,rank)=>{
