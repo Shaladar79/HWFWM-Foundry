@@ -1,3 +1,4 @@
+import {natureSummary} from "./nature-catalog.js";
 import {ATTRIBUTES,minimumProgress,attributeTN,calculateResources,MOVE_BONUS,progressionPoints} from "./rules.js";
 export class HWFWMActor extends Actor{
  prepareDerivedData(){
@@ -24,6 +25,10 @@ export class HWFWMActor extends Actor{
    for(const k of Object.keys(bonuses))bonuses[k]+=Number(e.system.resourceBonuses?.[k]??0)*factor;
   }
   const max=calculateResources(attrProgress,bonuses);
+  const nature=natureSummary(s.nature,s.rank);
+  max.mana+=nature.manaBonus;
+  max.stamina+=nature.staminaBonus;
+  // Other Nature modifiers are calculated at point of use, not folded into base TNs.
   for(const k of Object.keys(max))s.resources[k].max=max[k];
  }
 }
