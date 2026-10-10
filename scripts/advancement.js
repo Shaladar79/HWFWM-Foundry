@@ -40,6 +40,7 @@ export async function advanceActorAbility(actor,abilityId){
   // Actor and item changes share the same turn; revert actor XP on item failure.
   const originalXP=actor.system.essenceXP;
   const originalRank=actor.system.rank;
+  const oldProgress=ability.system.rank+" "+ability.system.level;
   await actor.update({"system.essenceXP":plan.remaining});
   try{
     await ability.update({"system.rank":plan.next.rank,"system.level":plan.next.level});
@@ -48,7 +49,7 @@ export async function advanceActorAbility(actor,abilityId){
     throw error;
   }
   const history=actor.getFlag("hwfwm","xpHistory")??[];
-  const entry=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:ability.system.rank+" "+ability.system.level,to:plan.next.rank+" "+plan.next.level});
+  const entry=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:oldProgress,to:plan.next.rank+" "+plan.next.level});
   await actor.setFlag("hwfwm","xpHistory",appendLedger(history,entry));
   if(actor.system.rank!==originalRank){
     const updated=actor.getFlag("hwfwm","xpHistory")??[];
