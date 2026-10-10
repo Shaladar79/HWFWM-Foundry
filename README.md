@@ -22,3 +22,6 @@ See `docs/rules.md` for established and provisional mechanics.
 
 ## Confluence selection (P2)
 The character creator now dynamically lists matching documented confluences for the three chosen primary essences (order-independent). Restricted outcomes are labeled for GM review. Players can select **Custom / GM-approved** to supply an alternative. The catalog is curated and incomplete; lookup does not automatically validate custom outcomes. The live Foundry smoke test remains deferred.
+
+## P2 code audit — October 10, 2026
+Additional guards prevent malformed essence builds (missing/duplicate bonds or fewer than five abilities per essence) from advancing. A rank cannot increase unless all 20 properly linked abilities meet its threshold. GM rank-up Talent XP awards remain configurable and default to zero; they are not finalized balance values. XP grants and purchases are logged, but true database transactions and live UI testing are not yet verified. Next design area: Natures and Nature abilities, potentially modifying character setup and derived statistics.
