@@ -35,7 +35,13 @@ export async function advanceActorAbility(actor,abilityId){
   if(!["character","npc"].includes(actor.type)||actor.system.normal)throw Error("This actor cannot advance essence abilities");
   const ability=actor.items.get(abilityId);
   if(!ability||ability.type!=="ability")throw Error("Ability not found");
+  const essence=actor.items.get(ability.system.essenceId);
+  if(!essence||essence.type!=="essence")throw Error("Ability must belong to a valid bonded essence");
+  const essences=actor.items.filter(i=>i.type==="essence");
+  if(!validateBonding(essences.map(e=>e.system)))throw Error("Character needs four uniquely bonded essences");
+  for(const e of essences)if(actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===e.id).length!==5)throw Error("Each essence must have exactly five abilities");
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
+  if(!Number.isSafeInteger(actor.system.essenceXP)||actor.system.essenceXP<0)throw Error("Invalid Essence XP balance");
   const plan=planAdvancement(ability.system,actor.system.rank,actor.system.essenceXP,{multiplier});
   if(!plan.ok)throw Error(plan.reason);
   const oldRank=actor.system.rank;
@@ -45,6 +51,7 @@ export async function advanceActorAbility(actor,abilityId){
   try{grants=JSON.parse(game.settings.get("hwfwm","rankTalentGrants")||"{}");}
   catch{throw Error("Invalid Talent XP grant configuration JSON");}
   const talentAward=rankGrant(oldRank,newRank,grants);
+  if(!Number.isSafeInteger(beforeTalent)||beforeTalent<0)throw Error("Invalid Talent XP balance");
   const history=actor.getFlag("hwfwm","xpHistory")??[];
   const purchase=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:ability.system.rank+" "+ability.system.level,to:plan.next.rank+" "+plan.next.level});
   const events=[purchase];
