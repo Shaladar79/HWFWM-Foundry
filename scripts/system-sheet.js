@@ -1,3 +1,4 @@
+import {NATURE_CHOICES,natureSummary} from "./nature-catalog.js";
 import {listStones,registerStone} from "./awakening-stones.js";
 import {validateIdentity} from "./character-profile.js";
 import {confluenceOptions} from "./confluences.js";
@@ -11,7 +12,9 @@ export class HWFWMActorSheet extends ActorSheet{
  static get defaultOptions(){return foundry.utils.mergeObject(super.defaultOptions,{classes:["hwfwm","sheet","actor"],template:"systems/hwfwm/templates/actor.hbs",width:1000,height:750,resizable:true,tabs:[{navSelector:".sheet-tabs",contentSelector:".sheet-body",initial:"overview"}]});}
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
-  data.system=s;data.rank=s.rank??"iron";data.isEssenceUser=["character","npc"].includes(this.actor.type)&&!(this.actor.type==="npc"&&s.normal);
+  data.system=s;data.rank=s.rank??"iron";
+  data.natureChoices=NATURE_CHOICES.map(name=>({name,selected:name===s.nature}));
+  data.natureGifts=natureSummary(s.nature,s.rank).gifts;data.isEssenceUser=["character","npc"].includes(this.actor.type)&&!(this.actor.type==="npc"&&s.normal);
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
@@ -29,8 +32,16 @@ export class HWFWMActorSheet extends ActorSheet{
  }
  activateListeners(html){
   super.activateListeners(html);
+  html.find("[data-action=select-nature]").on("change",async event=>{
+    const name=event.currentTarget.value;
+    if(!NATURE_CHOICES.includes(name)){ui.notifications.warn("Outworlder and custom Natures require a future GM-only workflow");return;}
+    try{
+      if(this.actor.system.nature&&this.actor.system.nature!==name&&!game.user.isGM)throw Error("Nature transformations require GM approval");
+      await this.actor.update({"system.nature":name});this.render(false);
+    }catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=save-profile]").on("click",async()=>{
-    try{const nature=html.find('[data-profile="nature"]').val(),role=html.find('[data-profile="role"]').val();const clean=validateIdentity({nature,role});await this.actor.update({"system.nature":clean.nature,"system.role":clean.role});this.render(false);}catch(err){ui.notifications.warn(err.message);}
+    try{const nature=this.actor.system.nature,role=html.find('[data-profile="role"]').val();const clean=validateIdentity({nature,role});await this.actor.update({"system.nature":clean.nature,"system.role":clean.role});this.render(false);}catch(err){ui.notifications.warn(err.message);}
   });
   html.find("[data-action=add-custom-stone]").on("click",async()=>{const value=k=>String(html.find('[data-stone-field="'+k+'"]').val()??"");try{await registerStone({name:value("name"),rarity:value("rarity"),description:value("description")});ui.notifications.info("Awakening Stone added");this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=add-custom-essence]").on("click",async()=>{
