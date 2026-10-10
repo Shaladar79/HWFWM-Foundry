@@ -1,3 +1,4 @@
+import {buildLedgerEntry,appendLedger} from "./character-profile.js";
 import {ATTRIBUTES,HERO_RANKS,minimumProgress,nextAbilityProgress} from "./rules.js";
 export function rankForAbilities(abilityGroups){
   const progresses=ATTRIBUTES.map(k=>{
@@ -38,12 +39,20 @@ export async function advanceActorAbility(actor,abilityId){
   if(!plan.ok)throw Error(plan.reason);
   // Actor and item changes share the same turn; revert actor XP on item failure.
   const originalXP=actor.system.essenceXP;
+  const originalRank=actor.system.rank;
   await actor.update({"system.essenceXP":plan.remaining});
   try{
     await ability.update({"system.rank":plan.next.rank,"system.level":plan.next.level});
   }catch(error){
     await actor.update({"system.essenceXP":originalXP});
     throw error;
+  }
+  const history=actor.getFlag("hwfwm","xpHistory")??[];
+  const entry=buildLedgerEntry({kind:"spend",currency:"essenceXP",amount:-plan.cost,reason:ability.name,abilityId:ability.id,from:ability.system.rank+" "+ability.system.level,to:plan.next.rank+" "+plan.next.level});
+  await actor.setFlag("hwfwm","xpHistory",appendLedger(history,entry));
+  if(actor.system.rank!==originalRank){
+    const updated=actor.getFlag("hwfwm","xpHistory")??[];
+    await actor.setFlag("hwfwm","xpHistory",appendLedger(updated,buildLedgerEntry({kind:"rank",amount:0,reason:"All four attributes reached the next rank",rankFrom:originalRank,rankTo:actor.system.rank})));
   }
   return plan;
 }
