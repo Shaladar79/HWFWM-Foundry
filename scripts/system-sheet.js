@@ -29,15 +29,26 @@ export class HWFWMActorSheet extends ActorSheet{
     try{await registerCustomEssence({name:val("name"),rarity:val("rarity"),description:val("description")});ui.notifications.info("Custom essence added");this.render(false);}
     catch(error){ui.notifications.warn(error.message);}
   });
-  html.find("[data-action=suggest-confluences]").on("click",()=>{
-    const read=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
-    const options=confluenceOptions(["first","second","third"].map(read));
-    const message=options.length?options.map(o=>o.name+(o.restricted?" (restricted)":"")).join(", "):"No documented match in the initial catalog; GM may approve another confluence.";
-    ui.notifications.info(message,{permanent:true});
-  });
+  const readSetup=key=>String(html.find('[data-setup="'+key+'"]').val()??"");
+  const choice=html.find('[data-setup="confluenceChoice"]');
+  const custom=html.find('[data-setup="confluence"]');
+  const feedback=html.find('[data-confluence-feedback]');
+  const updateConfluences=()=>{
+    const previous=String(choice.val()??"custom");
+    const options=confluenceOptions(["first","second","third"].map(readSetup));
+    choice.empty().append($("<option>").val("custom").text("Custom / GM-approved"));
+    for(const option of options)choice.append($("<option>").val(option.name).text(option.name+(option.restricted?" (restricted — GM approval)":"")));
+    choice.val(options.some(o=>o.name===previous)?previous:"custom");
+    feedback.text(options.length?options.length+" documented outcome(s) found.":"No documented match in the starter catalog; use GM-approved custom confluence.");
+    custom.prop("disabled",choice.val()!=="custom");
+  };
+  html.find("[data-action=suggest-confluences]").on("click",updateConfluences);
+  html.find('[data-setup="first"],[data-setup="second"],[data-setup="third"]').on("change",updateConfluences);
+  choice.on("change",()=>custom.prop("disabled",choice.val()!=="custom"));
+  updateConfluences();
   html.find("[data-action=create-character-essences]").on("click",async()=>{
     const value=k=>String(html.find('[data-setup="'+k+'"]').val()??"");
-    const input={first:value("first"),second:value("second"),third:value("third"),confluence:value("confluence"),firstAttribute:value("firstAttribute"),secondAttribute:value("secondAttribute"),thirdAttribute:value("thirdAttribute"),confluenceAttribute:value("confluenceAttribute")};
+    const input={first:value("first"),second:value("second"),third:value("third"),confluence:choice.val()==="custom"?value("confluence"):String(choice.val()),firstAttribute:value("firstAttribute"),secondAttribute:value("secondAttribute"),thirdAttribute:value("thirdAttribute"),confluenceAttribute:value("confluenceAttribute")};
     try{await createCharacterEssences(this.actor,input);ui.notifications.info("Four essences and twenty slots created");this.render(false);}catch(error){ui.notifications.warn(error.message);}
   });
   html.find("[data-action=setup-essences]").on("click",async()=>{try{await initializeEssences(this.actor);this.render(false);}catch(e){ui.notifications.error(e.message);}});
