@@ -164,6 +164,8 @@
       "staminaCost": 0,
       "actionType": "hostile",
       "apSpent": 0,
+      "apConfigured": false,
+      "abilityType": "other",
       "components": [],
       "effects": [],
       "favorite": false,
