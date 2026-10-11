@@ -43,7 +43,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,blueprintNotes:a.system.blueprint?.notes??"",blueprintComponents:a.system.blueprint?.components?.length??0,apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
   data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
@@ -129,7 +129,7 @@ export class HWFWMActorSheet extends ActorSheet{
     const row=html.find('[data-editor-id="'+id+'"]');
     const read=key=>row.find('[data-edit-field="'+key+'"]').val();
     try{
-      await updateAbility(this.actor,id,{name:read("name"),actionCost:read("actionCost"),manaCost:read("manaCost"),staminaCost:read("staminaCost"),awakeningStone:read("awakeningStone"),favorite:row.find('[data-edit-field="favorite"]').prop("checked")});
+      await updateAbility(this.actor,id,{name:read("name"),actionCost:read("actionCost"),manaCost:read("manaCost"),staminaCost:read("staminaCost"),awakeningStone:read("awakeningStone"),blueprintNotes:read("blueprintNotes"),favorite:row.find('[data-edit-field="favorite"]').prop("checked")});
       this.render(false);
     }catch(error){ui.notifications.warn(error.message);}
   });
