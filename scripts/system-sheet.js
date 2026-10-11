@@ -1,3 +1,4 @@
+import {applyResourceRecovery} from "./p3-resource-operations.js";
 import {buySkillTalent} from "./p3-talent-purchases.js";
 import {buySpecialization} from "./p3-prerequisites.js";
 import {SKILLS,grantStartingSkills} from "./p3-skill-catalog.js";
@@ -166,6 +167,14 @@ export class HWFWMActorSheet extends ActorSheet{
   }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=roll]").on("click",async e=>{const attr=e.currentTarget.dataset.attribute??"power";const tn=Number(this.actor.system.attributes?.[attr]?.tn??30)+natureCheckBonus(this.actor.system.nature,this.actor.system.rank,{attribute:attr});const roll=await(new Roll("1d100")).evaluate();const outcome=resolveRoll(roll.total,tn);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${attr.toUpperCase()} TN ${tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});});
   html.find("[data-action=reset-adaptive]").on("click",async()=>{try{await resetAdaptiveResistance(this.actor);this.render(false);}catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=gm-recover-resource]").on("click",async()=>{try{
+    const resource=String(html.find('[data-recovery-field="resource"]').val()??"");
+    const amount=Number(html.find('[data-recovery-field="amount"]').val());
+    const result=await applyResourceRecovery(this.actor,resource,amount);
+    ui.notifications.info(`Recovered ${result.restored} ${resource}`);
+    this.render(false);
+   }catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=apply-nature-hit]").on("click",async()=>{try{
     const amount=Number(html.find('[data-hit-field="amount"]').val());
     const hitId=String(html.find('[data-hit-field="id"]').val()??"");
