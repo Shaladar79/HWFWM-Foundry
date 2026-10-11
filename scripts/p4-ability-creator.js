@@ -1,3 +1,4 @@
+import {validateAbilityPrerequisite} from "./p3-prerequisites.js";
 import {normalizeAbilityBlueprint,normalizeAbilityComponent,blueprintSummary} from "./p3-ability-blueprint.js";
 export const SCALING_MODES=["none","per-success"];
 export function buildComponent(input={}){
@@ -29,6 +30,7 @@ export async function saveComponentEdit(actor,abilityId,edit){
  const essence=actor.items.get(ability.system.essenceId);
  if(!essence||essence.type!=="essence")throw Error("Ability has no parent Essence");
  const blueprint=editComponents(ability.system.blueprint,{...edit});
+ if(blueprint.components.some(c=>c.kind==="summon"||c.kind==="familiar"))validateAbilityPrerequisite(actor,"summon");
  blueprint.essence={id:essence.id,name:essence.name};
  blueprint.awakeningStone={id:ability.system.blueprint?.awakeningStone?.id??"",name:String(ability.system.awakeningStone??"")};
  await ability.update({"system.blueprint":blueprint});
