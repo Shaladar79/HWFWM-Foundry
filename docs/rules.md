@@ -20,3 +20,13 @@
 
 ## Provisional mechanics
 Resource regeneration rates, exact Essence XP costs, Talent XP awards/costs, equipment effect catalogs, AP component costs, damage tuning, and some sheet workflows remain undecided. Do not treat proposed values as final beyond stated baselines.
+
+## First Edition Skill Talents — Locked
+All skills come from Skill Talents. Five distinct starting Skill Talents are selected free during character creation; each creates a trained skill (+5% TN). No starting specializations. Nature-granted talents are separate. Specializations may be obtained later.
+- Power (7): Athletics, Intimidation, Grappling, Endurance, Feats of Strength, Martial Combat, Unarmed Combat.
+- Speed (5): Acrobatics, Stealth, Sleight of Hand, Precision, Ranged Combat.
+- Spirit (11): Magic Theory, Ritual Knowledge, Aura Control, Spellcasting, Perception, Investigation, Insight, Persuasion, Deception, Lore, Concentration.
+- Recovery (3): Survival, Medicine, Meditation.
+- Ritual Knowledge requires Magic Theory. Summon and familiar Essence abilities require Ritual Knowledge; ability-builder prerequisite enforcement is pending.
+- Four universal attribute saves without Skill Talents: Power, Speed, Spirit, Fortitude (Recovery). Provisional implementation uses current attribute TN and applicable modifiers; independent save progression is not approved.
+- Reflexes, Evasion, Constitution and Fortitude are not skills; Arcana was renamed Magic Theory. Spec bonuses (+5%) only apply when purchased later.
