@@ -1,0 +1,21 @@
+name: Verify Forge manifest download
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch public manifest and archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 4 --retry-delay 2 --show-error 'https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/system.json' -o /tmp/system.json
+          node -e "const m=require('/tmp/system.json'); console.log({id:m.id,version:m.version,download:m.download}); if(!m.download)process.exit(1);"
+          DOWNLOAD_URL="$(node -p "require('/tmp/system.json').download")"
+          curl --fail --location --retry 4 --retry-delay 2 --show-error "$DOWNLOAD_URL" -o /tmp/hwfwm.zip
+          file /tmp/hwfwm.zip
+          unzip -t /tmp/hwfwm.zip
+          unzip -Z1 /tmp/hwfwm.zip | grep -qx 'system.json'
+          unzip -p /tmp/hwfwm.zip system.json > /tmp/zipped-system.json
+          node -e "const m=require('/tmp/zipped-system.json'); if(m.id!=='hwfwm'||m.version!=='0.1.0')process.exit(1);"
