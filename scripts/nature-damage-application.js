@@ -20,7 +20,7 @@ export async function applyNatureHit(target,{amount,physical=false,subtype="",an
  if(!Number.isSafeInteger(amount)||amount<0)throw Error("Damage must be a nonnegative integer");
  const id=String(hitId??"").trim();
  if(!id||id.length>120)throw Error("A unique hit identifier is required");
- const key=(target.uuid??target.id)+":"+id;
+ const key=(target.uuid??target.id); // Serialize all hits against one actor, not only identical IDs.
  if(pending.has(key))throw Error("This hit is already being applied");
  pending.add(key);
  try{
