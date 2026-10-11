@@ -20,7 +20,7 @@ export async function applyNatureHit(target,{amount,physical=false,subtype="",an
  if(!Number.isSafeInteger(amount)||amount<0)throw Error("Damage must be a nonnegative integer");
  const id=String(hitId??"").trim();
  if(!id||id.length>120)throw Error("A unique hit identifier is required");
- const key=target.uuid+":"+id;
+ const key=(target.uuid??target.id)+":"+id;
  if(pending.has(key))throw Error("This hit is already being applied");
  pending.add(key);
  try{
@@ -28,7 +28,7 @@ export async function applyNatureHit(target,{amount,physical=false,subtype="",an
   if(history.includes(id))throw Error("This hit has already been applied");
   const activeSubtype=String(target.getFlag("hwfwm","adaptiveSubtype")??"");
   const plan=planNatureHit(target,amount,{physical,subtype,ancestry,adaptiveSubtype:activeSubtype});
-  const next=[...history,id].slice(-200);
+  const next=[...history,id]; // Keep all identifiers; pruning would permit old hits to be applied twice.
   const nextSubtype=nextAdaptiveSubtype(target.system.nature,activeSubtype,subtype,plan.reduced);
   await target.update({...damageUpdate(plan),"flags.hwfwm.appliedNatureHits":next,"flags.hwfwm.adaptiveSubtype":nextSubtype});
   return plan;
