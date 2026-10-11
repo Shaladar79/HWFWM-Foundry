@@ -36,3 +36,13 @@ Hooks.once("ready",()=>{
  await roll.toMessage({flavor:`${flavor}: TN ${finalTN}% — ${outcome.successes} successes${outcome.critical?" (CRITICAL)":""}`});
  return outcome;}};
 });
+
+// Keep open tactical panels current across connected clients when the GM edits
+// combat state or when players post action requests.
+for(const eventName of ["updateCombat","createChatMessage","updateChatMessage"]){
+ Hooks.on(eventName,()=>{
+  for(const window of Object.values(ui.windows??{})){
+   if(window.constructor?.name==="HWFWMCombatPanel"&&window.rendered)window.render(false);
+  }
+ });
+}
