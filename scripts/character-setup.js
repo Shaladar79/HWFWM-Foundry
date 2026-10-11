@@ -15,7 +15,7 @@ export async function createCharacterEssences(actor,input){
  const {names,assignment}=validateEssenceSetup(input);
  const created=await actor.createEmbeddedDocuments("Item",names.map((name,i)=>({name,type:"essence",system:{bondedAttribute:assignment[i],confluence:i===3}})));
  try {
-  const slots=created.flatMap(e=>Array.from({length:5},(_,i)=>({name:e.name+" Ability "+(i+1),type:"ability",system:{essenceId:e.id,rank:"iron",level:0}})));
+  const slots=created.flatMap(e=>Array.from({length:5},(_,i)=>({name:e.name+" Ability "+(i+1),type:"ability",system:{essenceId:e.id,rank:"iron",level:0,blueprint:{schemaVersion:1,essence:{id:e.id,name:e.name},awakeningStone:{id:"",name:""},components:[],notes:""}}})));
   await actor.createEmbeddedDocuments("Item",slots);
  }catch(error){await actor.deleteEmbeddedDocuments("Item",created.map(i=>i.id));throw error;}
  return created;
