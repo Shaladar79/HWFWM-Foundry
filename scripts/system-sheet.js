@@ -1,3 +1,4 @@
+import {recoveryIssue} from "./p3-combat-safety.js";
 import {classifyCombatRequests} from "./p3-request-queue.js";
 import {submitActionRequest,validateActionRequest} from "./p3-player-action-requests.js";
 import {currentBattle,rollBattleRound,bankBattleAction,spendBattleAction,modifyBattleScore} from "./p3-initiative-foundry.js";
@@ -206,6 +207,7 @@ class HWFWMCombatPanel extends Application{
   return {actor:this.actor,system:this.actor.system,encounter:combatTurnState(combat,this.actor),
    encounterStarted:Boolean(combat?.started),isGM:game.user.isGM,
    battleStarted:Boolean(state),battleRound:state?.round??0,battleDone:Boolean(state&&!state.current),
+   resourceRecoveryIssue:recoveryIssue(combat),
    battleActors:participants,currentActor:participants.find(e=>e.active)?.name??"None",
    abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite),
    myTurn:participants.some(e=>e.active&&combat.combatants.get(e.id)?.actor?.id===this.actor.id),
