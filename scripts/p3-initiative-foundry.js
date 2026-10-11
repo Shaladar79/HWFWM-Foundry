@@ -28,10 +28,11 @@ export async function rollBattleRound(combat){
   return state;
  });
 }
-export async function bankBattleAction(combat,requestId=null){
+export async function bankBattleAction(combat,requestId=null,expectedRevision=null){
  return editBattle(combat,async()=>{
   const state=currentBattle(combat);
   if(!state?.current)throw Error("No active combatant");
+  if(expectedRevision!==null&&state.revision!==expectedRevision)throw Error("Stale request: combat state changed before approval");
   if(requestId&&(state.appliedRequests??[]).includes(requestId))throw Error("Request already applied");
   const next=passTurn(state,state.current);
   if(requestId)next.appliedRequests=[...(state.appliedRequests??[]),requestId];
@@ -40,10 +41,11 @@ export async function bankBattleAction(combat,requestId=null){
   return next;
  });
 }
-export async function spendBattleAction(combat,costs,requestId=null){
+export async function spendBattleAction(combat,costs,requestId=null,expectedRevision=null){
  return editBattle(combat,async()=>{
   const state=currentBattle(combat);
   if(!state?.current)throw Error("No active combatant");
+  if(expectedRevision!==null&&state.revision!==expectedRevision)throw Error("Stale request: combat state changed before approval");
   if(requestId&&(state.appliedRequests??[]).includes(requestId))throw Error("Request already applied");
   const combatant=combat.combatants.get(state.current);
   const actor=combatant?.actor;
