@@ -1,3 +1,4 @@
+import {mayUpdateNature} from "./nature-evolution.js";
 import * as natureEffects from "./nature-effects.js";
 import {listStones,registerStone} from "./awakening-stones.js";
 import {readCatalog,registerCustomEssence} from "./essence-catalog.js";
@@ -17,6 +18,13 @@ Hooks.once("init",()=>{
  game.settings.register("hwfwm","evasiveFootworkCost",{name:"Evasive Footwork Talent XP purchase cost",hint:"Set a positive GM-approved cost to enable purchase; zero disables purchase.",scope:"world",config:true,type:Number,default:0});
  Handlebars.registerHelper("eq",(a,b)=>a===b);
  Handlebars.registerHelper("titlecase",str=>String(str??"").replace(/\b\w/g,c=>c.toUpperCase()));
+});
+Hooks.on("preUpdateActor",(actor,changes,options,userId)=>{
+ const user=game.users.get(userId);
+ if(!mayUpdateNature(actor.system?.nature,changes,user?.isGM)){
+  if(userId===game.user.id)ui.notifications.warn("Nature transformations require GM approval and a significant story event");
+  return false;
+ }
 });
 Hooks.once("ready",()=>{
  game.hwfwm={natureEffects,resolveRoll,rankDelta,advanceActorAbility,initializeEssences,readCatalog,registerCustomEssence,listStones,registerStone,roll:async({tn=30,actorRank="iron",targetRank="iron",type="neutral",flavor="System Check"}={})=>{
