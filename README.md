@@ -25,3 +25,16 @@ The character creator now dynamically lists matching documented confluences for 
 
 ## P2 code audit — October 10, 2026
 Additional guards prevent malformed essence builds (missing/duplicate bonds or fewer than five abilities per essence) from advancing. A rank cannot increase unless all 20 properly linked abilities meet its threshold. GM rank-up Talent XP awards remain configurable and default to zero; they are not finalized balance values. XP grants and purchases are logged, but true database transactions and live UI testing are not yet verified. Next design area: Natures and Nature abilities, potentially modifying character setup and derived statistics.
+
+## Nature audit closeout — October 10, 2026
+- Duplicate GM damage identifiers are retained instead of pruned after 200 hits.
+- Damage application now prevents simultaneous applications against the same actor in the current client session, avoiding stale pool reads in that session.
+- Evasive Footwork Talent XP purchase is guarded against concurrent clicks on the same client.
+- Existing Nature changes are checked in the Actor pre-update hook in addition to sheet controls.
+- AP creation/upgrade Nature aptitude budgets are per transaction; unused points cannot be banked.
+- Outstanding live verification: cross-client simultaneous Actor writes, direct GM bypass via APIs, sheet rendering, and Foundry document persistence. The in-memory guards do not provide a multi-client database transaction. Treat these as smoke-test requirements, not verified guarantees.
+
+## P3 start — skill resolution
+- Added centralized d100 skill resolution with attribute TN, +5 trained, +5 specialization, contextual Nature modifiers, and optional rank/circumstance adjustments.
+- Added Skills-tab roll buttons to invoke it.
+- Ability/component catalogs, broader talent system, and full combat automation remain future P3 work; no unapproved balance rules assigned.
