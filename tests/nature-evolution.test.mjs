@@ -1,5 +1,5 @@
 import test from "node:test";import assert from "node:assert/strict";
-import {planNatureEvolution,planNatureTransformation,approveNatureEvolution,approveNatureTransformation} from "../scripts/nature-evolution.js";
+import {planNatureEvolution,planNatureTransformation,approveNatureEvolution,approveNatureTransformation,mayUpdateNature} from "../scripts/nature-evolution.js";
 const story="A GM-approved transformation after a major campaign event.";
 test("only documented significant story events allow approvals",()=>{
  assert.equal(planNatureEvolution("Runic",5,"Resistance becomes visible",story).slot,5);
@@ -20,4 +20,12 @@ test("GM transformation records who and why and resets adaptive state",async()=>
  assert.equal(written["system.nature"],"Elf");
  assert.equal(written["flags.hwfwm.adaptiveSubtype"],"");
  assert.equal(written["flags.hwfwm.natureEvents"][0].approvedBy,"gm-id");
+});
+
+test("existing Nature cannot be changed by a non-GM Actor update",()=>{
+ assert.equal(mayUpdateNature("Elf",{"system.nature":"Runic"},false),false);
+ assert.equal(mayUpdateNature("Elf",{system:{nature:"Runic"}},false),false);
+ assert.equal(mayUpdateNature("Elf",{"system.nature":"Elf"},false),true);
+ assert.equal(mayUpdateNature("",{"system.nature":"Elf"},false),true);
+ assert.equal(mayUpdateNature("Elf",{"system.nature":"Runic"},true),true);
 });
