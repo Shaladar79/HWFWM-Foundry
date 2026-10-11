@@ -1,3 +1,4 @@
+import {combatTurnState,advanceCombatTurn,startCombatRound} from "./p3-combat-sequence.js";
 import {startActionScore,spendCombatAction} from "./p3-actions.js";
 import {applyResourceRecovery} from "./p3-resource-operations.js";
 import {buySkillTalent} from "./p3-talent-purchases.js";
@@ -196,8 +197,21 @@ export class HWFWMActorSheet extends ActorSheet{
 class HWFWMCombatPanel extends Application{
  constructor(actor,options={}){super(options);this.actor=actor;}
  static get defaultOptions(){return foundry.utils.mergeObject(super.defaultOptions,{id:"hwfwm-combat-panel",template:"systems/hwfwm/templates/combat.hbs",title:"System Combat",width:400,height:550,resizable:true});}
- async getData(){return {actor:this.actor,system:this.actor.system,score:this.actor.getFlag("hwfwm","actionScore")??0,abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite)};}
+ async getData(){
+  const encounter=game.combats?.active??null;
+  return {actor:this.actor,system:this.actor.system,score:this.actor.getFlag("hwfwm","actionScore")??0,
+   abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite),
+   encounter:combatTurnState(encounter,this.actor),encounterStarted:Boolean(encounter?.started),isGM:game.user.isGM};
+ }
  activateListeners(html){super.activateListeners(html);
+  html.find("[data-action=start-combat]").on("click",async()=>{try{
+   await startCombatRound(game.combats?.active);
+   this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=next-turn]").on("click",async()=>{try{
+   await advanceCombatTurn(game.combats?.active);
+   this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=start-score]").on("click",async()=>{try{
    const roll=await(new Roll("1d20")).evaluate();
    await startActionScore(this.actor,roll.total);
