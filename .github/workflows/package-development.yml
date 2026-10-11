@@ -1,0 +1,35 @@
+name: Package development system ZIP
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'dist/**'
+permissions:
+  contents: write
+concurrency:
+  group: package-development-main
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Build Foundry ZIP with system.json at ZIP root
+        run: |
+          mkdir -p dist
+          zip -q -r dist/hwfwm.zip system.json template.json scripts templates styles -x '*.DS_Store'
+          unzip -Z1 dist/hwfwm.zip | grep -qx 'system.json'
+          node -e "const m=require('./system.json'); if(!m.download.endsWith('/dist/hwfwm.zip'))process.exit(1)"
+      - name: Commit ZIP to GitHub for direct Forge download
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f dist/hwfwm.zip
+          if git diff --cached --quiet; then
+            echo 'ZIP unchanged'
+          else
+            git commit -m 'Build development Foundry system archive [skip ci]'
+            git push origin HEAD:main
+          fi
