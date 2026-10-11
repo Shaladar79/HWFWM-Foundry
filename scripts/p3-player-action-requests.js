@@ -17,6 +17,8 @@ export function validateActionRequest(combat,message){
  if(!request||!["pass","move","ability"].includes(request.kind))throw Error("Not a combat action request");
  const state=combat?.getFlag("hwfwm","initiativeEngine");
  if(!state?.current)throw Error("There is no active turn");
+ if(message.flags?.hwfwm?.actionResolved||(state.appliedRequests??[]).includes(message.id))throw Error("Request already applied");
+ if(request.combatId!==combat.id||request.combatantId!==state.current||request.round!==state.round||request.revision!==state.revision)throw Error("Stale action request; submit a new request for the current turn");
  const combatant=combat.combatants.get(state.current);
  if(!combatant?.actor||combatant.actor.id!==request.actorId)throw Error("Request does not match the active combatant");
  const author=game.users.get(message.user?.id??message.user);
@@ -30,6 +32,9 @@ export function validateActionRequest(combat,message){
  return {kind:"pass",actor:combatant.actor};
 }
 export async function submitActionRequest(actor,request){
- const data=describeActionRequest(actor,request);
+ const combat=game.combats?.active,state=combat?.getFlag("hwfwm","initiativeEngine");
+ if(!state?.current)throw Error("No active combat turn");
+ if(combat.combatants.get(state.current)?.actor?.id!==actor.id)throw Error("Not your turn");
+ const data={...describeActionRequest(actor,request),combatId:combat.id,combatantId:state.current,round:state.round,revision:state.revision};
  return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor}),content:`Combat action request: ${data.kind}`,flags:{hwfwm:{actionRequest:data}}});
 }
