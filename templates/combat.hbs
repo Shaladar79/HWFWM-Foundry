@@ -1,6 +1,6 @@
 <section class="system-shell rank-{{system.rank}} combat-shell"><div class="system-panel">
 <h2>{{actor.name}} — {{titlecase system.rank}}</h2>
-<h3>First Edition Initiative / Action Score</h3>
+<h3>First Edition Initiative / Action Score</h3>{{#if resourceRecoveryIssue}}<p><strong>COMBAT PAUSED:</strong> An interrupted resource transaction needs GM reconciliation before further actions. Actor: {{resourceRecoveryIssue.actorId}}. Review Mana, Stamina and encounter score before resuming.</p>{{/if}}
 {{#if encounter.active}}
  {{#unless encounterStarted}}{{#if isGM}}<button type="button" data-action="start-combat">Start Foundry Encounter</button>{{/if}}{{/unless}}
  {{#if encounterStarted}}
