@@ -10,6 +10,7 @@
    {{#each battleActors as |c|}}<div class="list-row">{{#if c.active}}▶ {{/if}}{{c.name}} — Score {{c.score}}{{#if c.passed}} (banked){{/if}}</div>{{/each}}
    {{#if battleDone}}<p>Everyone has passed or has no positive Action Score. The GM can roll the next round.</p>{{/if}}
    {{#if isGM}}
+    <h4>Player Action Requests</h4>{{#each pendingRequests as |r|}}<div class="list-row">{{r.label}} <button type="button" data-action="approve-request" data-message-id="{{r.id}}">Approve</button></div>{{else}}<p>No pending requests</p>{{/each}}
     {{#if battleDone}}<button type="button" data-action="roll-round">Roll Next Round (d20 + carryover)</button>{{/if}}
     <h4>Stun / Score Modifier</h4>
     <select data-score-field="combatant">{{#each battleActors as |c|}}<option value="{{c.id}}">{{c.name}}</option>{{/each}}</select>
@@ -17,10 +18,16 @@
     <button type="button" data-action="adjust-score">Apply Score Change</button>
    {{/if}}
    {{#if myTurn}}
+    {{#unless isGM}}
+      <button type="button" data-action="request-pass">Request: Bank Remaining Score</button>
+      <button type="button" data-action="request-move">Request: Move (2 Score)</button>
+      {{#each abilities as |a|}}<div class="list-row">{{a.name}} <button type="button" data-action="request-ability" data-ability-id="{{a.id}}">Request Use ({{a.system.actionCost}} Score)</button></div>{{/each}}
+    {{else}}
     <button type="button" data-action="bank-score">End Actions — Bank Remaining Score</button>
     <button type="button" data-cost="2">Move (2 Action Score)</button>
     <h4>Favorite Abilities</h4>
     {{#each abilities as |a|}}<div class="list-row">{{a.name}} <button type="button" data-cost="{{a.system.actionCost}}" data-ability-id="{{a.id}}">Use: {{a.system.actionCost}} Score / {{a.system.manaCost}} Mana / {{a.system.staminaCost}} Stamina</button></div>{{else}}<p>No favorite abilities selected.</p>{{/each}}
+    {{/unless}}
    {{else}}<p>Waiting for your turn.</p>{{/if}}
   {{else}}
    {{#if isGM}}<button type="button" data-action="roll-round">Roll First Round (d20)</button>{{else}}<p>GM must roll the first combat round.</p>{{/if}}
