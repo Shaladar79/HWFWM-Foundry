@@ -1,3 +1,5 @@
+import {SKILLS,grantStartingSkills} from "./p3-skill-catalog.js";
+import {SAVING_THROWS,resolveSavingThrow} from "./p3-saving-throws.js";
 import {resolveSkillCheck} from "./p3-skill-checks.js";
 import {approveNatureEvolution,approveNatureTransformation} from "./nature-evolution.js";
 import {ABILITY_TYPES,saveAbilityAP} from "./ability-ap.js";
@@ -20,6 +22,9 @@ export class HWFWMActorSheet extends ActorSheet{
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
+  data.startingSkillsChosen=Boolean(this.actor.getFlag("hwfwm","startingSkillTalentsChosen"));
+  data.startingSkillOptions=SKILLS;
+  data.savingThrowOptions=Object.entries(SAVING_THROWS).map(([attribute,name])=>({attribute,name}));
   data.baseAPBudget=Number(game.settings.get("hwfwm","abilityAPBudget"));
   data.apEnabled=data.baseAPBudget>0;
   data.isRunic=s.nature==="Runic";
@@ -124,6 +129,18 @@ export class HWFWMActorSheet extends ActorSheet{
     }catch(error){ui.notifications.warn(error.message);}
   });
   html.find("[data-action=rename-ability]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
+  html.find("[data-action=grant-starting-skills]").on("click",async()=>{try{
+   const names=[...html.find("[data-starting-skill]")].map(el=>String($(el).val()??""));
+   await grantStartingSkills(this.actor,names);
+   ui.notifications.info("Five starting Skill Talents granted");
+   this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=roll-save]").on("click",async event=>{try{
+   const attribute=event.currentTarget.dataset.attribute;
+   const roll=await(new Roll("1d100")).evaluate();
+   const outcome=resolveSavingThrow(this.actor,attribute,roll.total);
+   await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${outcome.name}: TN ${outcome.tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});
+  }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=roll-skill]").on("click",async event=>{try{
     const item=this.actor.items.get(event.currentTarget.dataset.id);
     if(!item||item.type!=="skill")throw Error("Skill not found");
