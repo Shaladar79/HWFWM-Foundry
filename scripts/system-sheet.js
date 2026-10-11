@@ -1,4 +1,4 @@
-import {applyNatureHit} from "./nature-damage-application.js";
+import {applyNatureHit,resetAdaptiveResistance} from "./nature-damage-application.js";
 import {rollPhysicalAttack} from "./nature-combat.js";
 import {evasiveFootwork} from "./nature-effects.js";
 import {purchaseEvasiveFootwork} from "./nature-talents.js";
@@ -17,6 +17,8 @@ export class HWFWMActorSheet extends ActorSheet{
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
+  data.isRunic=s.nature==="Runic";
+  data.adaptiveSubtype=String(this.actor.getFlag("hwfwm","adaptiveSubtype")??"")||"None";
   data.natureChoices=NATURE_CHOICES.map(name=>({name,selected:name===s.nature}));
   const purchased=Number(this.actor.getFlag("hwfwm","evasivePurchased")??0);
   data.evasiveTalent=evasiveFootwork(s.nature,purchased);
@@ -96,6 +98,7 @@ export class HWFWMActorSheet extends ActorSheet{
   });
   html.find("[data-action=rename-ability]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
   html.find("[data-action=roll]").on("click",async e=>{const attr=e.currentTarget.dataset.attribute??"power";const tn=Number(this.actor.system.attributes?.[attr]?.tn??30)+natureCheckBonus(this.actor.system.nature,this.actor.system.rank,{attribute:attr});const roll=await(new Roll("1d100")).evaluate();const outcome=resolveRoll(roll.total,tn);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${attr.toUpperCase()} TN ${tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});});
+  html.find("[data-action=reset-adaptive]").on("click",async()=>{try{await resetAdaptiveResistance(this.actor);this.render(false);}catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=apply-nature-hit]").on("click",async()=>{try{
     const amount=Number(html.find('[data-hit-field="amount"]').val());
     const hitId=String(html.find('[data-hit-field="id"]').val()??"");
