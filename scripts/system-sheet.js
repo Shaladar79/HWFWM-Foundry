@@ -1,3 +1,5 @@
+import {saveComponentEdit} from "./p4-ability-creator.js";
+import {ABILITY_COMPONENT_KINDS,ABILITY_FIELD_SOURCES} from "./p3-ability-blueprint.js";
 import {recoveryIssue} from "./p3-combat-safety.js";
 import {classifyCombatRequests} from "./p3-request-queue.js";
 import {submitActionRequest,validateActionRequest} from "./p3-player-action-requests.js";
@@ -50,7 +52,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,blueprintNotes:a.system.blueprint?.notes??"",blueprintComponents:a.system.blueprint?.components?.length??0,apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,blueprintNotes:a.system.blueprint?.notes??"",blueprintComponents:a.system.blueprint?.components?.length??0,componentRows:(a.system.blueprint?.components??[]).map((c,index)=>({...c,index})),apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
   data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
@@ -59,6 +61,8 @@ export class HWFWMActorSheet extends ActorSheet{
   data.hasIdentity=Boolean(String(s.nature??"").trim()&&String(s.role??"").trim());
   data.recentXP=(this.actor.getFlag("hwfwm","xpHistory")??[]).slice(-10).reverse();
   for(const g of data.essenceGroups)g.bondOptions=ATTRIBUTES.map(a=>({value:a,label:a,selected:a===g.key}));
+  data.p4ComponentKinds=ABILITY_COMPONENT_KINDS;
+  data.p4ComponentSources=ABILITY_FIELD_SOURCES;
   data.abilityItems=this.actor.items.filter(i=>i.type==="ability");
   data.skillItems=this.actor.items.filter(i=>i.type==="skill");data.talentItems=this.actor.items.filter(i=>i.type==="talent");data.equipmentItems=this.actor.items.filter(i=>i.type==="equipment");return data;
  }
@@ -131,6 +135,22 @@ export class HWFWMActorSheet extends ActorSheet{
    ui.notifications.info(`Allocated ${plan.spent} of ${plan.available} AP. Unused AP is not banked.`);
    this.render(false);
   }catch(err){ui.notifications.warn(err.message);}});
+  html.find("[data-action=p4-add-component]").on("click",async e=>{
+   const id=e.currentTarget.dataset.id,row=html.find('[data-editor-id="'+id+'"]');
+   const read=key=>row.find('[data-p4-field="'+key+'"]').val();
+   try{
+    const raw=String(read("apCost")??"").trim();
+    await saveComponentEdit(this.actor,id,{operation:"add",component:{
+     kind:read("kind"),source:read("source"),label:read("label"),
+     apCost:raw===""?null:Number(raw),notes:read("notes"),scalingMode:read("scaling")
+    }});
+    this.render(false);
+   }catch(error){ui.notifications.warn(error.message);}
+  });
+  html.find("[data-action=p4-remove-component]").on("click",async e=>{
+   try{await saveComponentEdit(this.actor,e.currentTarget.dataset.id,{operation:"remove",index:Number(e.currentTarget.dataset.index)});this.render(false);}
+   catch(error){ui.notifications.warn(error.message);}
+  });
   html.find("[data-action=save-ability]").on("click",async event=>{
     const id=event.currentTarget.dataset.id;
     const row=html.find('[data-editor-id="'+id+'"]');
