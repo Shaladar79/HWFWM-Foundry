@@ -22,23 +22,28 @@ export async function rollBattleRound(combat){
   const previous=currentBattle(combat),{combatants,rolls}=await rollFor(combat);
   if(previous?.current)throw Error("Finish or pass all eligible combatants before a new round");
   const state=initializeRound(combatants,rolls,previous);
+  state.revision=(previous?.revision??0)+1;
   await combat.setFlag("hwfwm","initiativeEngine",state);
   return state;
  });
 }
-export async function bankBattleAction(combat){
+export async function bankBattleAction(combat,requestId=null){
  return editBattle(combat,async()=>{
   const state=currentBattle(combat);
   if(!state?.current)throw Error("No active combatant");
+  if(requestId&&(state.appliedRequests??[]).includes(requestId))throw Error("Request already applied");
   const next=passTurn(state,state.current);
+  if(requestId)next.appliedRequests=[...(state.appliedRequests??[]),requestId];
+  next.revision=(state.revision??0)+1;
   await combat.setFlag("hwfwm","initiativeEngine",next);
   return next;
  });
 }
-export async function spendBattleAction(combat,costs){
+export async function spendBattleAction(combat,costs,requestId=null){
  return editBattle(combat,async()=>{
   const state=currentBattle(combat);
   if(!state?.current)throw Error("No active combatant");
+  if(requestId&&(state.appliedRequests??[]).includes(requestId))throw Error("Request already applied");
   const combatant=combat.combatants.get(state.current);
   const actor=combatant?.actor;
   if(!actor?.isOwner)throw Error("No permission for active combatant");
@@ -46,9 +51,15 @@ export async function spendBattleAction(combat,costs){
   const shim={system:actor.system,getFlag:()=>entry.score};
   const plan=planAction(shim,costs);
   const next=spendTurn(state,state.current,plan.costs.action);
+  if(requestId)next.appliedRequests=[...(state.appliedRequests??[]),requestId];
   // Apply resources first; the engine is updated only after the actor is saved.
   await actor.update({"system.resources.mana.value":plan.mana,"system.resources.stamina.value":plan.stamina});
-  await combat.setFlag("hwfwm","initiativeEngine",next);
+  try{await combat.setFlag("hwfwm","initiativeEngine",next);}
+  catch(error){
+   try{await actor.update({"system.resources.mana.value":Number(actor.system.resources.mana.value)+plan.costs.mana,"system.resources.stamina.value":Number(actor.system.resources.stamina.value)+plan.costs.stamina});}
+   catch(rollback){throw new Error("Combat update failed and resource rollback failed; GM must reconcile manually",{cause:rollback});}
+   throw error;
+  }
   return next;
  });
 }
