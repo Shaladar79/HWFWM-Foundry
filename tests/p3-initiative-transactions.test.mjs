@@ -25,3 +25,12 @@ test("failed combat flag save restores resource balances",async()=>{
  assert.equal(f.actor.system.resources.stamina.value,8);
  assert.equal(f.state.entries[0].score,12);
 });
+
+test("rejects request if combat revision changed between review and mutation",async()=>{
+ const f=fixture();
+ await assert.rejects(spendBattleAction(f.combat,{actionCost:4,manaCost:3},"stale",0),/Stale request/);
+ assert.equal(f.actor.system.resources.mana.value,10);
+ assert.equal(f.state.entries[0].score,12);
+ await assert.rejects(bankBattleAction(f.combat,"old-pass",0),/Stale request/);
+ assert.equal(f.state.current,"c");
+});
