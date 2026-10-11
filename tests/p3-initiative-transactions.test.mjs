@@ -6,8 +6,9 @@ function fixture(fail=false){
   actor.system.resources.stamina.value=patch["system.resources.stamina.value"];
  }};
  let state={round:1,revision:1,current:"c",entries:[{id:"c",score:12,passed:false,order:0,canAct:true}],appliedRequests:[]};
- const combat={id:"battle",started:true,getFlag:()=>state,combatants:{get:()=>({actor})},setFlag:async(_scope,_key,next)=>{if(fail)throw Error("flag save failed");state=next;}};
- globalThis.game={user:{isGM:true}};
+ let issue=null;
+ const combat={id:"battle",started:true,getFlag:(_scope,key)=>key==="resourceRecoveryIssue"?issue:state,unsetFlag:async()=>{issue=null;},combatants:{get:()=>({actor})},setFlag:async(_scope,_key,next)=>{if(_key==="resourceRecoveryIssue"){issue=next;return;}if(fail)throw Error("flag save failed");state=next;}};
+ globalThis.game={user:{id:"gm",isGM:true},users:[{id:"gm",isGM:true,active:true}]};
  return {actor,combat,get state(){return state;}};
 }
 test("approved spending records ID and refuses replay",async()=>{
