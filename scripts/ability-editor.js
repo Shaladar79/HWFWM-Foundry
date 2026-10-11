@@ -1,3 +1,4 @@
+import {normalizeAbilityBlueprint} from "./p3-ability-blueprint.js";
 export function normalizeAbilityFields(input){
  const name=String(input.name??"").trim();
  if(!name||name.length>120)throw Error("Invalid ability name");
@@ -15,5 +16,5 @@ export async function updateAbility(actor,id,fields){
  if(!actor.isOwner)throw Error("No permission");
  const item=actor.items.get(id);
  if(!item||item.type!=="ability")throw Error("Ability not found");
- return item.update(normalizeAbilityFields(fields));
+ return item.update(normalizeAbilityFields({...fields,blueprint:item.system.blueprint}));
 }
