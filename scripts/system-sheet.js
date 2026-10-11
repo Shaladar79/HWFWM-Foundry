@@ -1,3 +1,4 @@
+import {currentBattle,rollBattleRound,bankBattleAction,spendBattleAction,modifyBattleScore} from "./p3-initiative-foundry.js";
 import {combatTurnState,advanceCombatTurn,startCombatRound} from "./p3-combat-sequence.js";
 import {startActionScore,spendCombatAction} from "./p3-actions.js";
 import {applyResourceRecovery} from "./p3-resource-operations.js";
@@ -196,37 +197,35 @@ export class HWFWMActorSheet extends ActorSheet{
 }
 class HWFWMCombatPanel extends Application{
  constructor(actor,options={}){super(options);this.actor=actor;}
- static get defaultOptions(){return foundry.utils.mergeObject(super.defaultOptions,{id:"hwfwm-combat-panel",template:"systems/hwfwm/templates/combat.hbs",title:"System Combat",width:400,height:550,resizable:true});}
+ static get defaultOptions(){return foundry.utils.mergeObject(super.defaultOptions,{id:"hwfwm-combat-panel",template:"systems/hwfwm/templates/combat.hbs",title:"System Combat",width:470,height:640,resizable:true});}
  async getData(){
-  const encounter=game.combats?.active??null;
-  return {actor:this.actor,system:this.actor.system,score:this.actor.getFlag("hwfwm","actionScore")??0,
+  const combat=game.combats?.active??null,state=currentBattle(combat);
+  const participants=state?.entries.map(e=>({...e,active:e.id===state.current}))??[];
+  return {actor:this.actor,system:this.actor.system,encounter:combatTurnState(combat,this.actor),
+   encounterStarted:Boolean(combat?.started),isGM:game.user.isGM,
+   battleStarted:Boolean(state),battleRound:state?.round??0,battleDone:Boolean(state&&!state.current),
+   battleActors:participants,currentActor:participants.find(e=>e.active)?.name??"None",
    abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite),
-   encounter:combatTurnState(encounter,this.actor),encounterStarted:Boolean(encounter?.started),isGM:game.user.isGM};
+   myTurn:participants.some(e=>e.active&&combat.combatants.get(e.id)?.actor?.id===this.actor.id),
+   myScore:participants.find(e=>combat.combatants.get(e.id)?.actor?.id===this.actor.id)?.score??null};
  }
  activateListeners(html){super.activateListeners(html);
-  html.find("[data-action=start-combat]").on("click",async()=>{try{
-   await startCombatRound(game.combats?.active);
-   this.render(false);
-  }catch(error){ui.notifications.warn(error.message);}});
-  html.find("[data-action=next-turn]").on("click",async()=>{try{
-   await advanceCombatTurn(game.combats?.active);
-   this.render(false);
-  }catch(error){ui.notifications.warn(error.message);}});
-  html.find("[data-action=start-score]").on("click",async()=>{try{
-   const roll=await(new Roll("1d20")).evaluate();
-   await startActionScore(this.actor,roll.total);
-   await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:"New Action Score (base d20; modifiers deferred)"});
-   this.render(false);
-  }catch(error){ui.notifications.warn(error.message);}});
-  html.find("[data-cost]").on("click",async e=>{try{
-   const button=e.currentTarget;
-   const id=button.dataset.abilityId;
+  const run=async fn=>{try{await fn();this.render(false);}catch(error){ui.notifications.warn(error.message);}};
+  html.find("[data-action=start-combat]").on("click",()=>run(()=>startCombatRound(game.combats?.active)));
+  html.find("[data-action=roll-round]").on("click",()=>run(()=>rollBattleRound(game.combats?.active)));
+  html.find("[data-action=bank-score]").on("click",()=>run(()=>bankBattleAction(game.combats?.active)));
+  html.find("[data-action=adjust-score]").on("click",()=>run(()=>modifyBattleScore(game.combats?.active,
+   String(html.find('[data-score-field="combatant"]').val()??""),
+   Number(html.find('[data-score-field="delta"]').val()))));
+  html.find("[data-cost]").on("click",e=>run(async()=>{
+   const button=e.currentTarget,id=button.dataset.abilityId;
    const ability=id?this.actor.items.get(id):null;
    if(id&&(!ability||ability.type!=="ability"))throw Error("Ability not found");
+   const combat=game.combats?.active,state=currentBattle(combat);
+   if(!state?.current||combat.combatants.get(state.current)?.actor?.id!==this.actor.id)throw Error("Not your turn");
    const costs=ability?{actionCost:ability.system.actionCost,manaCost:ability.system.manaCost,staminaCost:ability.system.staminaCost}:{actionCost:Number(button.dataset.cost)};
-   await spendCombatAction(this.actor,costs);
-   ui.notifications.info("Action cost spent; ability effects must be resolved separately");
-   this.render(false);
-  }catch(error){ui.notifications.warn(error.message);}});
+   await spendBattleAction(combat,costs);
+   ui.notifications.info("Action Score and resource costs spent; effects resolved separately");
+  }));
  }
 }
