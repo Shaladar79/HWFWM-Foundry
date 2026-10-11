@@ -90,7 +90,7 @@ export async function initializeEssences(actor){
   if(actor.items.some(i=>i.type==="essence"||i.type==="ability"))throw Error("Essence setup is only available before creating essences or abilities");
   const essences=ATTRIBUTES.map(a=>({name:`${a[0].toUpperCase()+a.slice(1)} Essence`,type:"essence",system:{bondedAttribute:a,confluence:a==="recovery"}}));
   const created=await actor.createEmbeddedDocuments("Item",essences);
-  const abilities=created.flatMap(e=>Array.from({length:5},(_,i)=>({name:`${e.name} Ability ${i+1}`,type:"ability",system:{essenceId:e.id,rank:"iron",level:0}})));
+  const abilities=created.flatMap(e=>Array.from({length:5},(_,i)=>({name:`${e.name} Ability ${i+1}`,type:"ability",system:{essenceId:e.id,rank:"iron",level:0,blueprint:{schemaVersion:1,essence:{id:e.id,name:e.name},awakeningStone:{id:"",name:""},components:[],notes:""}}})));
   await actor.createEmbeddedDocuments("Item",abilities);
   return created;
 }
