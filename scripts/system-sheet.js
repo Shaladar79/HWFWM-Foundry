@@ -1,3 +1,4 @@
+import {resolveSkillCheck} from "./p3-skill-checks.js";
 import {approveNatureEvolution,approveNatureTransformation} from "./nature-evolution.js";
 import {ABILITY_TYPES,saveAbilityAP} from "./ability-ap.js";
 import {applyNatureHit,resetAdaptiveResistance} from "./nature-damage-application.js";
@@ -123,6 +124,13 @@ export class HWFWMActorSheet extends ActorSheet{
     }catch(error){ui.notifications.warn(error.message);}
   });
   html.find("[data-action=rename-ability]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
+  html.find("[data-action=roll-skill]").on("click",async event=>{try{
+    const item=this.actor.items.get(event.currentTarget.dataset.id);
+    if(!item||item.type!=="skill")throw Error("Skill not found");
+    const roll=await(new Roll("1d100")).evaluate();
+    const outcome=resolveSkillCheck(this.actor,roll.total,{attribute:item.system.attribute,trained:item.system.trained,specialization:item.system.specialization});
+    await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${item.name}: TN ${outcome.tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});
+  }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=roll]").on("click",async e=>{const attr=e.currentTarget.dataset.attribute??"power";const tn=Number(this.actor.system.attributes?.[attr]?.tn??30)+natureCheckBonus(this.actor.system.nature,this.actor.system.rank,{attribute:attr});const roll=await(new Roll("1d100")).evaluate();const outcome=resolveRoll(roll.total,tn);await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${attr.toUpperCase()} TN ${tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});});
   html.find("[data-action=reset-adaptive]").on("click",async()=>{try{await resetAdaptiveResistance(this.actor);this.render(false);}catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=apply-nature-hit]").on("click",async()=>{try{
