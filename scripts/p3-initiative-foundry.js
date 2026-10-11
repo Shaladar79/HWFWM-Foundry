@@ -23,6 +23,7 @@ export async function rollBattleRound(combat){
   if(previous?.current)throw Error("Finish or pass all eligible combatants before a new round");
   const state=initializeRound(combatants,rolls,previous);
   state.revision=(previous?.revision??0)+1;
+  state.appliedRequests=previous?.appliedRequests??[];
   await combat.setFlag("hwfwm","initiativeEngine",state);
   return state;
  });
@@ -52,6 +53,7 @@ export async function spendBattleAction(combat,costs,requestId=null){
   const plan=planAction(shim,costs);
   const next=spendTurn(state,state.current,plan.costs.action);
   if(requestId)next.appliedRequests=[...(state.appliedRequests??[]),requestId];
+  next.revision=(state.revision??0)+1;
   // Apply resources first; the engine is updated only after the actor is saved.
   await actor.update({"system.resources.mana.value":plan.mana,"system.resources.stamina.value":plan.stamina});
   try{await combat.setFlag("hwfwm","initiativeEngine",next);}
@@ -68,6 +70,7 @@ export async function modifyBattleScore(combat,id,delta){
   const state=currentBattle(combat);
   if(!state)throw Error("Roll the first round before modifying scores");
   const next=updateScore(state,id,delta);
+  next.revision=(state.revision??0)+1;
   await combat.setFlag("hwfwm","initiativeEngine",next);
   return next;
  });
