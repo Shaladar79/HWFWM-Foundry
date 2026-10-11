@@ -1,3 +1,4 @@
+import {ABILITY_TYPES,saveAbilityAP} from "./ability-ap.js";
 import {applyNatureHit,resetAdaptiveResistance} from "./nature-damage-application.js";
 import {rollPhysicalAttack} from "./nature-combat.js";
 import {evasiveFootwork} from "./nature-effects.js";
@@ -17,6 +18,8 @@ export class HWFWMActorSheet extends ActorSheet{
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
+  data.baseAPBudget=Number(game.settings.get("hwfwm","abilityAPBudget"));
+  data.apEnabled=data.baseAPBudget>0;
   data.isRunic=s.nature==="Runic";
   data.adaptiveSubtype=String(this.actor.getFlag("hwfwm","adaptiveSubtype")??"")||"None";
   data.natureChoices=NATURE_CHOICES.map(name=>({name,selected:name===s.nature}));
@@ -28,7 +31,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,apConfigured:a.system.apConfigured,abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
   data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
@@ -87,6 +90,15 @@ export class HWFWMActorSheet extends ActorSheet{
   html.find("[data-action=bond-essence]").on("change",async e=>{try{await bondEssence(this.actor,e.currentTarget.dataset.id,e.currentTarget.value);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=award-xp]").on("click",async e=>{try{const currency=e.currentTarget.dataset.currency;const amount=Number(html.find('[data-award-amount]').val());const reason=String(html.find('[data-award-reason]').val());await awardXP(this.actor,currency,amount,reason);this.render(false);}catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=rename-essence]").on("change",async e=>{const item=this.actor.items.get(e.currentTarget.dataset.id);if(item)await item.update({name:e.currentTarget.value});});
+  html.find("[data-action=allocate-ability-ap]").on("click",async e=>{try{
+   const id=e.currentTarget.dataset.id;
+   const row=html.find('[data-editor-id="'+id+'"]');
+   const abilityType=String(row.find('[data-ap-field="type"]').val());
+   const spend=Number(row.find('[data-ap-field="spent"]').val());
+   const plan=await saveAbilityAP(this.actor,id,{abilityType,spend});
+   ui.notifications.info(`Allocated ${plan.spent} of ${plan.available} AP. Unused AP is not banked.`);
+   this.render(false);
+  }catch(err){ui.notifications.warn(err.message);}});
   html.find("[data-action=save-ability]").on("click",async event=>{
     const id=event.currentTarget.dataset.id;
     const row=html.find('[data-editor-id="'+id+'"]');
