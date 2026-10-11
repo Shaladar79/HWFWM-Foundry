@@ -42,3 +42,13 @@ test("non-elemental hits do not switch resistance",()=>{
  assert.equal(nextAdaptiveSubtype("Runic","fire","ice",0),"fire");
  assert.equal(nextAdaptiveSubtype("Elf","fire","ice",10),"fire");
 });
+
+test("old hit identifier remains protected after more than 200 applied hits",async()=>{
+ globalThis.game={user:{isGM:true}};
+ const flags={appliedNatureHits:[]};
+ const target={id:"long",uuid:"Actor.long",isOwner:true,system:{nature:"Elf",resources:{shield:{value:0},manaShield:{active:false},mana:{value:0},armor:{value:0},lifeForce:{value:1000,extra:0}}},getFlag:(_scope,key)=>flags[key],update:async u=>{flags.appliedNatureHits=u["flags.hwfwm.appliedNatureHits"];target.system.resources.lifeForce.value=u["system.resources.lifeForce.value"];}};
+ for(let i=0;i<205;i++)await applyNatureHit(target,{amount:1,hitId:"hit"+i});
+ assert.equal(flags.appliedNatureHits.length,205);
+ await assert.rejects(applyNatureHit(target,{amount:1,hitId:"hit0"}),/already been applied/);
+ assert.equal(target.system.resources.lifeForce.value,795);
+});
