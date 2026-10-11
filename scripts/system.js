@@ -13,6 +13,7 @@ Hooks.once("init",()=>{
  game.settings.register("hwfwm","customEssences",{name:"Custom Essences",hint:"GM-defined essence catalog additions",scope:"world",config:false,type:Array,default:[]});
  game.settings.register("hwfwm","customAwakeningStones",{name:"Custom Awakening Stones",scope:"world",config:false,type:Array,default:[]});
  game.settings.register("hwfwm","rankTalentGrants",{name:"Talent XP rank grants (provisional)",hint:"JSON mapping of ranks to GM-approved amounts. Defaults to zero until configured.",scope:"world",config:true,type:String,default:"{}"});
+ game.settings.register("hwfwm","abilityAPBudget",{name:"Base AP per Ability Build",hint:"GM-approved base AP for a single ability build; zero disables AP allocations. Nature aptitude grants +2 matching AP in this transaction only.",scope:"world",config:true,type:Number,default:0});
  game.settings.register("hwfwm","evasiveFootworkCost",{name:"Evasive Footwork Talent XP purchase cost",hint:"Set a positive GM-approved cost to enable purchase; zero disables purchase.",scope:"world",config:true,type:Number,default:0});
  Handlebars.registerHelper("eq",(a,b)=>a===b);
  Handlebars.registerHelper("titlecase",str=>String(str??"").replace(/\b\w/g,c=>c.toUpperCase()));
