@@ -165,6 +165,7 @@
       "actionType": "hostile",
       "apSpent": 0,
       "apConfigured": false,
+      "apHistory": [],
       "abilityType": "other",
       "components": [],
       "effects": [],
