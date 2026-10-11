@@ -1,3 +1,4 @@
+import {validateAbilityPrerequisite} from "./p3-prerequisites.js";
 import {planAbilityAP} from "./ability-ap.js";
 import {projectedRank,rankGrant} from "./rank-awards.js";
 import {buildLedgerEntry,appendLedger} from "./character-profile.js";
@@ -36,6 +37,7 @@ export async function advanceActorAbility(actor,abilityId,{apSpend}={}){
   if(!["character","npc"].includes(actor.type)||actor.system.normal)throw Error("This actor cannot advance essence abilities");
   const ability=actor.items.get(abilityId);
   if(!ability||ability.type!=="ability")throw Error("Ability not found");
+  validateAbilityPrerequisite(actor,ability.system.abilityPurpose??"standard");
   const essence=actor.items.get(ability.system.essenceId);
   if(!essence||essence.type!=="essence")throw Error("Ability must belong to a valid bonded essence");
   const essences=actor.items.filter(i=>i.type==="essence");
