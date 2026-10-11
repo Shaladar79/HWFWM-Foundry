@@ -40,5 +40,6 @@
   },
   "primaryTokenAttribute": "resources.lifeForce",
   "url": "https://github.com/Shaladar79/HWFWM-Foundry",
-  "manifest": "https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/system.json"
+  "manifest": "https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/system.json",
+  "download": "https://raw.githubusercontent.com/Shaladar79/HWFWM-Foundry/main/dist/hwfwm.zip"
 }
