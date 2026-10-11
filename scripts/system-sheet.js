@@ -224,8 +224,8 @@ class HWFWMCombatPanel extends Application{
    const message=game.messages.get(e.currentTarget.dataset.messageId);
    if(!message||message.flags?.hwfwm?.actionResolved)throw Error("Request already resolved");
    const data=validateActionRequest(game.combats?.active,message);
-   if(data.kind==="pass")await bankBattleAction(game.combats.active);
-   else await spendBattleAction(game.combats.active,data.costs);
+   if(data.kind==="pass")await bankBattleAction(game.combats.active,message.id);
+   else await spendBattleAction(game.combats.active,data.costs,message.id);
    await message.setFlag("hwfwm","actionResolved",true);
    ui.notifications.info("Player action approved");
   }));
