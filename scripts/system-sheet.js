@@ -1,3 +1,4 @@
+import {buySkillTalent} from "./p3-talent-purchases.js";
 import {buySpecialization} from "./p3-prerequisites.js";
 import {SKILLS,grantStartingSkills} from "./p3-skill-catalog.js";
 import {SAVING_THROWS,resolveSavingThrow} from "./p3-saving-throws.js";
@@ -23,6 +24,7 @@ export class HWFWMActorSheet extends ActorSheet{
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
+  data.skillTalentCost=Number(game.settings.get("hwfwm","skillTalentCost"));
   data.specializationCost=Number(game.settings.get("hwfwm","specializationTalentCost"));
   data.startingSkillsChosen=Boolean(this.actor.getFlag("hwfwm","startingSkillTalentsChosen"));
   data.startingSkillOptions=SKILLS;
@@ -143,6 +145,12 @@ export class HWFWMActorSheet extends ActorSheet{
    const roll=await(new Roll("1d100")).evaluate();
    const outcome=resolveSavingThrow(this.actor,attribute,roll.total);
    await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${outcome.name}: TN ${outcome.tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=buy-skill-talent]").on("click",async()=>{try{
+    const name=String(html.find("[data-purchase-skill]").val()??"");
+    await buySkillTalent(this.actor,name);
+    ui.notifications.info("Skill Talent acquired: "+name);
+    this.render(false);
   }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=buy-specialization]").on("click",async e=>{try{
    await buySpecialization(this.actor,e.currentTarget.dataset.id);
