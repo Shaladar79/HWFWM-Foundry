@@ -1,3 +1,4 @@
+import {buySpecialization} from "./p3-prerequisites.js";
 import {SKILLS,grantStartingSkills} from "./p3-skill-catalog.js";
 import {SAVING_THROWS,resolveSavingThrow} from "./p3-saving-throws.js";
 import {resolveSkillCheck} from "./p3-skill-checks.js";
@@ -22,6 +23,7 @@ export class HWFWMActorSheet extends ActorSheet{
  async getData(options){
   const data=await super.getData(options),s=this.actor.system;
   data.system=s;data.rank=s.rank??"iron";
+  data.specializationCost=Number(game.settings.get("hwfwm","specializationTalentCost"));
   data.startingSkillsChosen=Boolean(this.actor.getFlag("hwfwm","startingSkillTalentsChosen"));
   data.startingSkillOptions=SKILLS;
   data.savingThrowOptions=Object.entries(SAVING_THROWS).map(([attribute,name])=>({attribute,name}));
@@ -39,7 +41,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
   data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
@@ -115,7 +117,8 @@ export class HWFWMActorSheet extends ActorSheet{
    const row=html.find('[data-editor-id="'+id+'"]');
    const abilityType=String(row.find('[data-ap-field="type"]').val());
    const spend=Number(row.find('[data-ap-field="spent"]').val());
-   const plan=await saveAbilityAP(this.actor,id,{abilityType,spend});
+   const abilityPurpose=String(row.find('[data-ap-field="purpose"]').val()??"standard");
+   const plan=await saveAbilityAP(this.actor,id,{abilityType,spend,abilityPurpose});
    ui.notifications.info(`Allocated ${plan.spent} of ${plan.available} AP. Unused AP is not banked.`);
    this.render(false);
   }catch(err){ui.notifications.warn(err.message);}});
@@ -140,6 +143,11 @@ export class HWFWMActorSheet extends ActorSheet{
    const roll=await(new Roll("1d100")).evaluate();
    const outcome=resolveSavingThrow(this.actor,attribute,roll.total);
    await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:`${outcome.name}: TN ${outcome.tn}% — ${outcome.successes} successes${outcome.critical?" (Critical)":""}`});
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=buy-specialization]").on("click",async e=>{try{
+   await buySpecialization(this.actor,e.currentTarget.dataset.id);
+   ui.notifications.info("Skill specialization acquired");
+   this.render(false);
   }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=roll-skill]").on("click",async event=>{try{
     const item=this.actor.items.get(event.currentTarget.dataset.id);
