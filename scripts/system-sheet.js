@@ -1,3 +1,4 @@
+import {approveNatureEvolution,approveNatureTransformation} from "./nature-evolution.js";
 import {ABILITY_TYPES,saveAbilityAP} from "./ability-ap.js";
 import {applyNatureHit,resetAdaptiveResistance} from "./nature-damage-application.js";
 import {rollPhysicalAttack} from "./nature-combat.js";
@@ -23,6 +24,7 @@ export class HWFWMActorSheet extends ActorSheet{
   data.isRunic=s.nature==="Runic";
   data.adaptiveSubtype=String(this.actor.getFlag("hwfwm","adaptiveSubtype")??"")||"None";
   data.natureChoices=NATURE_CHOICES.map(name=>({name,selected:name===s.nature}));
+  data.natureHistory=(this.actor.getFlag("hwfwm","natureEvents")??[]).slice().reverse();
   const purchased=Number(this.actor.getFlag("hwfwm","evasivePurchased")??0);
   data.evasiveTalent=evasiveFootwork(s.nature,purchased);
   data.evasiveCost=Number(game.settings.get("hwfwm","evasiveFootworkCost"));
@@ -46,11 +48,23 @@ export class HWFWMActorSheet extends ActorSheet{
  activateListeners(html){
   super.activateListeners(html);
   html.find("[data-action=buy-evasive]").on("click",async()=>{try{await purchaseEvasiveFootwork(this.actor);this.render(false);}catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=approve-nature-evolution]").on("click",async()=>{try{
+    const read=k=>String(html.find('[data-nature-event="'+k+'"]').val()??"");
+    await approveNatureEvolution(this.actor,{slot:Number(read("slot")),description:read("description"),reason:read("reason")});
+    ui.notifications.info("Story-approved Nature evolution recorded; mechanical changes require separate GM review.");
+    this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-action=approve-nature-transformation]").on("click",async()=>{try{
+    const read=k=>String(html.find('[data-nature-event="'+k+'"]').val()??"");
+    await approveNatureTransformation(this.actor,{next:read("next"),reason:read("reason")});
+    ui.notifications.info("Exceptional Nature transformation approved and recorded.");
+    this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
   html.find("[data-action=select-nature]").on("change",async event=>{
     const name=event.currentTarget.value;
     if(!NATURE_CHOICES.includes(name)){ui.notifications.warn("Outworlder and custom Natures require a future GM-only workflow");return;}
     try{
-      if(this.actor.system.nature&&this.actor.system.nature!==name&&!game.user.isGM)throw Error("Nature transformations require GM approval");
+      if(this.actor.system.nature&&this.actor.system.nature!==name)throw Error("Existing Natures change only through a documented GM-approved story transformation");
       await this.actor.update({"system.nature":name});this.render(false);
     }catch(error){ui.notifications.warn(error.message);}
   });
