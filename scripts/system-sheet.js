@@ -1,3 +1,4 @@
+import {submitActionRequest,validateActionRequest} from "./p3-player-action-requests.js";
 import {currentBattle,rollBattleRound,bankBattleAction,spendBattleAction,modifyBattleScore} from "./p3-initiative-foundry.js";
 import {combatTurnState,advanceCombatTurn,startCombatRound} from "./p3-combat-sequence.js";
 import {startActionScore,spendCombatAction} from "./p3-actions.js";
@@ -207,13 +208,27 @@ class HWFWMCombatPanel extends Application{
    battleActors:participants,currentActor:participants.find(e=>e.active)?.name??"None",
    abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite),
    myTurn:participants.some(e=>e.active&&combat.combatants.get(e.id)?.actor?.id===this.actor.id),
-   myScore:participants.find(e=>combat.combatants.get(e.id)?.actor?.id===this.actor.id)?.score??null};
+   myScore:participants.find(e=>combat.combatants.get(e.id)?.actor?.id===this.actor.id)?.score??null,
+   pendingRequests:game.user.isGM?[...(game.messages??[])].filter(m=>m.flags?.hwfwm?.actionRequest&&!m.flags?.hwfwm?.actionResolved).slice(-15).reverse().map(m=>({id:m.id,label:m.content})):[]};
  }
  activateListeners(html){super.activateListeners(html);
   const run=async fn=>{try{await fn();this.render(false);}catch(error){ui.notifications.warn(error.message);}};
   html.find("[data-action=start-combat]").on("click",()=>run(()=>startCombatRound(game.combats?.active)));
   html.find("[data-action=roll-round]").on("click",()=>run(()=>rollBattleRound(game.combats?.active)));
   html.find("[data-action=bank-score]").on("click",()=>run(()=>bankBattleAction(game.combats?.active)));
+  html.find("[data-action=request-pass]").on("click",()=>run(()=>submitActionRequest(this.actor,{kind:"pass"})));
+  html.find("[data-action=request-move]").on("click",()=>run(()=>submitActionRequest(this.actor,{kind:"move"})));
+  html.find("[data-action=request-ability]").on("click",e=>run(()=>submitActionRequest(this.actor,{kind:"ability",abilityId:e.currentTarget.dataset.abilityId})));
+  html.find("[data-action=approve-request]").on("click",e=>run(async()=>{
+   if(!game.user.isGM)throw Error("GM approval required");
+   const message=game.messages.get(e.currentTarget.dataset.messageId);
+   if(!message||message.flags?.hwfwm?.actionResolved)throw Error("Request already resolved");
+   const data=validateActionRequest(game.combats?.active,message);
+   if(data.kind==="pass")await bankBattleAction(game.combats.active);
+   else await spendBattleAction(game.combats.active,data.costs);
+   await message.setFlag("hwfwm","actionResolved",true);
+   ui.notifications.info("Player action approved");
+  }));
   html.find("[data-action=adjust-score]").on("click",()=>run(()=>modifyBattleScore(game.combats?.active,
    String(html.find('[data-score-field="combatant"]').val()??""),
    Number(html.find('[data-score-field="delta"]').val()))));
