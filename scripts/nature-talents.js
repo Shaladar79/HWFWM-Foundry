@@ -7,8 +7,13 @@ export function planEvasivePurchase(nature,purchased,balance,cost){
  const next=evasiveFootwork(nature,purchased+1);
  return {cost,balanceAfter:balance-cost,current,next};
 }
+const pendingPurchases=new Set();
 export async function purchaseEvasiveFootwork(actor){
  if(!actor.isOwner||!["character","npc"].includes(actor.type)||actor.system.normal)throw Error("Permission denied");
+ const key=actor.uuid??actor.id;
+ if(pendingPurchases.has(key))throw Error("A Talent purchase is already processing");
+ pendingPurchases.add(key);
+ try{
  const cost=Number(game.settings.get("hwfwm","evasiveFootworkCost"));
  const purchased=Number(actor.getFlag("hwfwm","evasivePurchased")??0);
  const plan=planEvasivePurchase(actor.system.nature,purchased,Number(actor.system.talentXP),cost);
@@ -16,4 +21,5 @@ export async function purchaseEvasiveFootwork(actor){
  const entry=buildLedgerEntry({kind:"spend",currency:"talentXP",amount:-cost,reason:"Evasive Footwork rank "+plan.next.ranks});
  await actor.update({"system.talentXP":plan.balanceAfter,"flags.hwfwm.evasivePurchased":purchased+1,"flags.hwfwm.xpHistory":appendLedger(history,entry)});
  return plan;
+ }finally{pendingPurchases.delete(key);}
 }
