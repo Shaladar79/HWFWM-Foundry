@@ -10,7 +10,7 @@
    {{#each battleActors as |c|}}<div class="list-row">{{#if c.active}}▶ {{/if}}{{c.name}} — Score {{c.score}}{{#if c.passed}} (banked){{/if}}</div>{{/each}}
    {{#if battleDone}}<p>Everyone has passed or has no positive Action Score. The GM can roll the next round.</p>{{/if}}
    {{#if isGM}}
-    <h4>Player Action Requests</h4>{{#each pendingRequests as |r|}}<div class="list-row">{{r.label}} <button type="button" data-action="approve-request" data-message-id="{{r.id}}">Approve</button></div>{{else}}<p>No pending requests</p>{{/each}}
+    <h4>Player Action Requests</h4>{{#each pendingRequests as |r|}}<div class="list-row">{{r.label}} — {{r.status}} {{#if r.current}}<button type="button" data-action="approve-request" data-message-id="{{r.id}}">Approve</button>{{/if}}<button type="button" data-action="dismiss-request" data-message-id="{{r.id}}">Dismiss</button></div>{{else}}<p>No pending requests</p>{{/each}}
     {{#if battleDone}}<button type="button" data-action="roll-round">Roll Next Round (d20 + carryover)</button>{{/if}}
     <h4>Stun / Score Modifier</h4>
     <select data-score-field="combatant">{{#each battleActors as |c|}}<option value="{{c.id}}">{{c.name}}</option>{{/each}}</select>
