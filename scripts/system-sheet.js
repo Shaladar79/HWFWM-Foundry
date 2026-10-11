@@ -1,3 +1,4 @@
+import {classifyCombatRequests} from "./p3-request-queue.js";
 import {submitActionRequest,validateActionRequest} from "./p3-player-action-requests.js";
 import {currentBattle,rollBattleRound,bankBattleAction,spendBattleAction,modifyBattleScore} from "./p3-initiative-foundry.js";
 import {combatTurnState,advanceCombatTurn,startCombatRound} from "./p3-combat-sequence.js";
@@ -209,7 +210,7 @@ class HWFWMCombatPanel extends Application{
    abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite),
    myTurn:participants.some(e=>e.active&&combat.combatants.get(e.id)?.actor?.id===this.actor.id),
    myScore:participants.find(e=>combat.combatants.get(e.id)?.actor?.id===this.actor.id)?.score??null,
-   pendingRequests:game.user.isGM?[...(game.messages??[])].filter(m=>m.flags?.hwfwm?.actionRequest&&!m.flags?.hwfwm?.actionResolved).slice(-15).reverse().map(m=>({id:m.id,label:m.content})):[]};
+   pendingRequests:game.user.isGM?classifyCombatRequests(game.messages,combat,state).slice(0,15):[]};
  }
  activateListeners(html){super.activateListeners(html);
   const run=async fn=>{try{await fn();this.render(false);}catch(error){ui.notifications.warn(error.message);}};
@@ -219,6 +220,12 @@ class HWFWMCombatPanel extends Application{
   html.find("[data-action=request-pass]").on("click",()=>run(()=>submitActionRequest(this.actor,{kind:"pass"})));
   html.find("[data-action=request-move]").on("click",()=>run(()=>submitActionRequest(this.actor,{kind:"move"})));
   html.find("[data-action=request-ability]").on("click",e=>run(()=>submitActionRequest(this.actor,{kind:"ability",abilityId:e.currentTarget.dataset.abilityId})));
+  html.find("[data-action=dismiss-request]").on("click",e=>run(async()=>{
+   if(!game.user.isGM)throw Error("GM approval required");
+   const message=game.messages.get(e.currentTarget.dataset.messageId);
+   if(!message?.flags?.hwfwm?.actionRequest)throw Error("Request not found");
+   await message.setFlag("hwfwm","actionResolved",true);
+  }));
   html.find("[data-action=approve-request]").on("click",e=>run(async()=>{
    if(!game.user.isGM)throw Error("GM approval required");
    const message=game.messages.get(e.currentTarget.dataset.messageId);
