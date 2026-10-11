@@ -1,9 +1,11 @@
+import {combatAuthority,resourceSnapshot,recoveryIssue} from "./p3-combat-safety.js";
 import {initializeRound,spendTurn,passTurn,updateScore} from "./p3-initiative-engine.js";
 import {planAction} from "./p3-actions.js";
 const pending=new Set();
 export function currentBattle(combat){return combat?.getFlag("hwfwm","initiativeEngine")??null;}
 async function editBattle(combat,fn){
- if(!game.user.isGM)throw Error("GM controls initiative sequencing");
+ combatAuthority(game.users,game.user);
+ if(recoveryIssue(combat))throw Error("Combat has an unresolved resource recovery incident; GM must reconcile before continuing");
  if(!combat?.started)throw Error("Start the Foundry encounter first");
  const key=combat.uuid??combat.id;
  if(pending.has(key))throw Error("Encounter operation already in progress");
@@ -56,14 +58,27 @@ export async function spendBattleAction(combat,costs,requestId=null,expectedRevi
   const next=spendTurn(state,state.current,plan.costs.action);
   if(requestId)next.appliedRequests=[...(state.appliedRequests??[]),requestId];
   next.revision=(state.revision??0)+1;
-  // Apply resources first; the engine is updated only after the actor is saved.
-  await actor.update({"system.resources.mana.value":plan.mana,"system.resources.stamina.value":plan.stamina});
-  try{await combat.setFlag("hwfwm","initiativeEngine",next);}
-  catch(error){
-   try{await actor.update({"system.resources.mana.value":Number(actor.system.resources.mana.value)+plan.costs.mana,"system.resources.stamina.value":Number(actor.system.resources.stamina.value)+plan.costs.stamina});}
-   catch(rollback){throw new Error("Combat update failed and resource rollback failed; GM must reconcile manually",{cause:rollback});}
+  const before=resourceSnapshot(actor);
+  // Record an unresolved operation before resource deduction; survives reconnects.
+  const operation={actorId:actor.id,combatantId:state.current,revision:state.revision,requestId:requestId??null,before,after:{mana:plan.mana,stamina:plan.stamina}};
+  await combat.setFlag("hwfwm","resourceRecoveryIssue",operation);
+  try{
+   await actor.update({"system.resources.mana.value":plan.mana,"system.resources.stamina.value":plan.stamina});
+   await combat.setFlag("hwfwm","initiativeEngine",next);
+  }catch(error){
+   // Compare before reversing, avoiding overwriting subsequent resource edits.
+   const now=resourceSnapshot(actor);
+   if(now.mana===plan.mana&&now.stamina===plan.stamina){
+    try{await actor.update({"system.resources.mana.value":before.mana,"system.resources.stamina.value":before.stamina});}
+    catch(rollback){throw new Error("Combat update interrupted; reconciliation required",{cause:rollback});}
+   }else if(now.mana!==before.mana||now.stamina!==before.stamina){
+    throw new Error("Resources changed during failed combat update; reconciliation required",{cause:error});
+   }
+   await combat.unsetFlag("hwfwm","resourceRecoveryIssue");
    throw error;
   }
+  // If clearing fails, the marker remains and blocks future writes until reviewed.
+  await combat.unsetFlag("hwfwm","resourceRecoveryIssue");
   return next;
  });
 }
