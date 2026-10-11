@@ -25,3 +25,10 @@ export async function approveNatureTransformation(actor,{next,reason}){
  await actor.update({"system.nature":next,"flags.hwfwm.adaptiveSubtype":"","flags.hwfwm.natureEvents":[...history,{kind:"transformation",...event,approvedBy:game.user.id,at:new Date().toISOString()}]});
  return event;
 }
+
+export function mayUpdateNature(current,update,isGM){
+ const next=update?.system?.nature??update?.["system.nature"];
+ if(next===undefined||next===current)return true;
+ // The initial choice is open, but existing Nature changes must be GM-approved.
+ return !String(current??"").trim()||Boolean(isGM);
+}
