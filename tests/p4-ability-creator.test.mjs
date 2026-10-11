@@ -18,3 +18,10 @@ test("ability save preserves actual parent Essence and Awakening Stone name",asy
  assert.deepEqual(ability.system.blueprint.essence,{id:"e",name:"Fire"});
  assert.equal(ability.system.blueprint.awakeningStone.name,"Ember Stone");
 });
+
+test("summoning components require both prerequisite Talents",async()=>{
+ const essence={id:"e",type:"essence",name:"Astral"};
+ const ability={id:"a",type:"ability",system:{essenceId:"e"},update:async()=>{throw Error("should not save")}};
+ const actor={isOwner:true,items:{get:id=>id==="e"?essence:id==="a"?ability:null,some:()=>false}};
+ await assert.rejects(saveComponentEdit(actor,"a",{operation:"add",component:{kind:"summon",label:"Summon ally"}}),/Magic Theory and Ritual Knowledge/);
+});
