@@ -30,3 +30,6 @@ All skills come from Skill Talents. Five distinct starting Skill Talents are sel
 - Ritual Knowledge requires Magic Theory. Summon and familiar Essence abilities require Ritual Knowledge; ability-builder prerequisite enforcement is pending.
 - Four universal attribute saves without Skill Talents: Power, Speed, Spirit, Fortitude (Recovery). Provisional implementation uses current attribute TN and applicable modifiers; independent save progression is not approved.
 - Reflexes, Evasion, Constitution and Fortitude are not skills; Arcana was renamed Magic Theory. Spec bonuses (+5%) only apply when purchased later.
+
+## P3 Essence Ability blueprint framework (provisional)
+Each ability retains its existing Essence ID, Awakening Stone name, category, AP allocation, and effects. A versioned `system.blueprint` provides optional Essence/stone provenance, multiple typed components, source attribution (manual/Essence/Awakening Stone), configuration, notes, and nullable per-component AP costs. Null means cost is undecided. No costs, automatic awakening outcomes, Essence-specific restrictions, or executable component calculations have been introduced. The sheet supports design notes; detailed component editing is deferred until rules are approved.
