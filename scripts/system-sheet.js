@@ -1,3 +1,4 @@
+import {startActionScore,spendCombatAction} from "./p3-actions.js";
 import {applyResourceRecovery} from "./p3-resource-operations.js";
 import {buySkillTalent} from "./p3-talent-purchases.js";
 import {buySpecialization} from "./p3-prerequisites.js";
@@ -196,5 +197,22 @@ class HWFWMCombatPanel extends Application{
  constructor(actor,options={}){super(options);this.actor=actor;}
  static get defaultOptions(){return foundry.utils.mergeObject(super.defaultOptions,{id:"hwfwm-combat-panel",template:"systems/hwfwm/templates/combat.hbs",title:"System Combat",width:400,height:550,resizable:true});}
  async getData(){return {actor:this.actor,system:this.actor.system,score:this.actor.getFlag("hwfwm","actionScore")??0,abilities:this.actor.items.filter(i=>i.type==="ability"&&i.system.favorite)};}
- activateListeners(html){super.activateListeners(html);html.find("[data-cost]").on("click",async e=>{const cost=Number(e.currentTarget.dataset.cost);try{const n=spendAction(Number(this.actor.getFlag("hwfwm","actionScore")??0),cost);await this.actor.setFlag("hwfwm","actionScore",n);this.render(false);}catch(err){ui.notifications.warn(err.message);}});}
+ activateListeners(html){super.activateListeners(html);
+  html.find("[data-action=start-score]").on("click",async()=>{try{
+   const roll=await(new Roll("1d20")).evaluate();
+   await startActionScore(this.actor,roll.total);
+   await roll.toMessage({speaker:ChatMessage.getSpeaker({actor:this.actor}),flavor:"New Action Score (base d20; modifiers deferred)"});
+   this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
+  html.find("[data-cost]").on("click",async e=>{try{
+   const button=e.currentTarget;
+   const id=button.dataset.abilityId;
+   const ability=id?this.actor.items.get(id):null;
+   if(id&&(!ability||ability.type!=="ability"))throw Error("Ability not found");
+   const costs=ability?{actionCost:ability.system.actionCost,manaCost:ability.system.manaCost,staminaCost:ability.system.staminaCost}:{actionCost:Number(button.dataset.cost)};
+   await spendCombatAction(this.actor,costs);
+   ui.notifications.info("Action cost spent; ability effects must be resolved separately");
+   this.render(false);
+  }catch(error){ui.notifications.warn(error.message);}});
+ }
 }
