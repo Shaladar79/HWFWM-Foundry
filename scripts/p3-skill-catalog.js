@@ -2,10 +2,10 @@
 export const SKILL_CATALOG={
  power:["Athletics","Intimidation","Grappling","Endurance","Feats of Strength","Martial Combat","Unarmed Combat"],
  speed:["Acrobatics","Stealth","Sleight of Hand","Precision","Ranged Combat"],
- spirit:["Magic Theory","Ritual Knowledge","Aura Control","Spellcasting","Perception","Investigation","Insight","Persuasion","Deception","Lore","Concentration"],
+ spirit:["Magic Theory","Ritual Knowledge","Aura Control","Spellcasting","Perception","Investigation","Insight","Persuasion","Deception","Lore","Concentration","Combat Rituals"],
  recovery:["Survival","Medicine","Meditation"]
 };
-export const SKILLS=Object.entries(SKILL_CATALOG).flatMap(([attribute,names])=>names.map(name=>({name,attribute,prerequisites:name==="Ritual Knowledge"?["Magic Theory"]:[]})));
+export const SKILLS=Object.entries(SKILL_CATALOG).flatMap(([attribute,names])=>names.map(name=>({name,attribute,prerequisites:name==="Ritual Knowledge"?["Magic Theory"]:name==="Combat Rituals"?["Magic Theory","Ritual Knowledge"]:[]})));
 export const STARTING_SKILL_TALENTS=5;
 export function validateStartingSkills(names){
  if(!Array.isArray(names)||names.length!==STARTING_SKILL_TALENTS)throw Error("Choose exactly five starting Skill Talents");
