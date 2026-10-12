@@ -1,0 +1,16 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {calculateIronBuild,activationAmount,damageOnSuccess,shieldOnSuccess,regenOnSuccess,transferResources,replacementDecision,drainRecovery,reduceDamage} from "../scripts/p4-iron-rules.js";
+test("Special Attack Flaming Blade",()=>{const r=calculateIronBuild({kind:"specialAttack",weapons:["sword"],damage:[{type:"fire",tier:"heavy"}],speed:"fast"});assert.equal(r.finalAP,5);assert.equal(r.resource,"stamina");});
+test("Human aptitude and drawbacks",()=>{const r=calculateIronBuild({kind:"specialAttack",specialAttackAptitude:true,weapons:["unarmed"],damage:[{type:"fire",tier:"extreme"}],speed:"extended",activation:"extreme",cooldown:"day"});assert.equal(r.baseAP,8);assert.equal(r.apCredit,4);});
+test("Unarmed cannot mix with weapons",()=>assert.throws(()=>calculateIronBuild({kind:"specialAttack",weapons:["unarmed","sword"],effect:"daze"})));
+test("Effect-only punch is valid",()=>assert.equal(calculateIronBuild({kind:"specialAttack",weapons:["unarmed"],range:"touch",effect:"daze",effectDamageIndex:0}).finalAP,2));
+test("Drain needs purchased damage",()=>assert.throws(()=>calculateIronBuild({kind:"specialAttack",weapons:["sword"],effect:"quarterDrain",drainResource:"mana"})));
+test("Spells have two types max",()=>assert.throws(()=>calculateIronBuild({kind:"damageSpell",damage:[{type:"fire",tier:"minor"},{type:"ice",tier:"minor"},{type:"acid",tier:"minor"}]})));
+test("Second different damage adds two AP",()=>assert.equal(calculateIronBuild({kind:"damageSpell",damage:[{type:"ice",tier:"heavy"},{type:"fire",tier:"medium"}]}).finalAP,5));
+test("Damage spell dual targets",()=>assert.equal(calculateIronBuild({kind:"damageSpell",damage:[{type:"fire",tier:"heavy"}],multiTarget:true}).finalAP,5));
+test("Regeneration alone and upgrades",()=>assert.equal(calculateIronBuild({kind:"restorationSpell",restoreResource:"mana",potency:null,regeneration:"sustained",regenUpgrade:2}).finalAP,6));
+test("Transfer never regenerates",()=>assert.throws(()=>calculateIronBuild({kind:"transferSpell",restoreResource:"mana",regeneration:"minor"})));
+test("Mana shield no activation AP",()=>assert.equal(calculateIronBuild({kind:"shieldSpell",shieldType:"mana",activation:"none"}).finalAP,6));
+test("Normal and reflection shield replacement",()=>{assert.equal(replacementDecision({kind:"reflection",points:8},{kind:"normal",points:20}),"replace");assert.equal(replacementDecision({kind:"deflection"},{kind:"reflection",points:50}),"keep");});
+test("Rounding and effectiveness",()=>{assert.equal(activationAmount(30,.02),1);assert.equal(drainRecovery(7,.25),1);assert.equal(reduceDamage(5,.5),2);assert.equal(damageOnSuccess("heavy",3),12);assert.equal(shieldOnSuccess("heavy",3),21);assert.equal(regenOnSuccess(3,2),9);assert.equal(transferResources({available:12,needed:20,maximum:8,requested:10}),8);});
