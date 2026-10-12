@@ -40,7 +40,7 @@
 <label>Two targets (+3 AP where allowed)<input type="checkbox" data-iron-field="multiTarget"/></label>
 <label>Ability-specific Awakening Stone permits Life Force<input type="checkbox" data-iron-field="lifeForceUnlocked"/></label>
 <label>Human Special Attack Aptitude<input type="checkbox" data-iron-field="specialAttackAptitude"/></label>
-<button type="button" data-action="save-iron-build" data-id="{{a.id}}">Validate and Save Iron Build</button>
+<label>Ritual compatible (0 AP, no refund)<input type="checkbox" data-iron-field="ritualCompatible"/></label><label>Defined ritual enhancement <textarea data-iron-field="ritualEnhancement" placeholder="Describe approved 1.5× effect or exception"></textarea></label>{{#if @root.isGM}}<label>GM approves ritual compatibility<input type="checkbox" data-iron-field="ritualApproved"/></label>{{/if}}<button type="button" data-action="save-iron-build" data-id="{{a.id}}">Validate and Save Iron Build</button>
 </details><label>Ability Design Notes <textarea data-edit-field="blueprintNotes" placeholder="Essence influence, Awakening Stone influence and future component details">{{a.blueprintNotes}}</textarea></label><details><summary>P4 Essence Ability Components ({{a.blueprintComponents}})</summary>
 {{#each a.componentRows as |c|}}<div class="list-row"><strong>{{c.kind}}</strong> {{c.label}} — {{c.source}}{{#if c.apCost}} · {{c.apCost}} AP{{/if}} {{c.configuration.scalingMode}} <button type="button" data-action="p4-remove-component" data-id="{{a.id}}" data-index="{{c.index}}">Remove</button></div>{{else}}<p>No components designed yet.</p>{{/each}}
 <label>Effect <select data-p4-field="kind">{{#each @root.p4ComponentKinds as |k|}}<option value="{{k}}">{{k}}</option>{{/each}}</select></label>
