@@ -168,6 +168,8 @@ export class HWFWMActorSheet extends ActorSheet{
       const build={kind,damage:parts,effect,speed:field("speed"),cooldown:field("cooldown"),
         activation:kind==="shieldSpell"&&field("shieldType")==="mana"?"none":field("activation"),
         range:field("range"),weapons:field("weapons").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean),
+        removalTier:field("removalTier"),durationRounds:Number(field("durationRounds")||1),
+        statuses:[["status1","save1"],["status2","save2"]].filter(([e])=>field(e)!=="none").map(([e,save])=>({effect:field(e),save:field(save)})),
         shieldType:field("shieldType"),potency:field("potency")==="none"?null:field("potency"),
         regeneration:field("regeneration"),regenUpgrade:Number(field("regenUpgrade")||0),
         restoreResource:field("restoreResource"),drainResource:field("drainResource"),
