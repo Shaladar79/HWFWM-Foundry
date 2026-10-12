@@ -9,7 +9,10 @@ export const SPELL_RANGE={touch:[1,-1],short:[4,0],medium:[8,2],long:[12,3],extr
 export const ATTACK_RANGE={touch:[1,0],weapon:[null,1],minor:[2,2],medium:[6,4],long:[10,6],extreme:[16,8]};
 export const EFFECTS={none:0,daze:2,slow:2,affliction:2,quarterDrain:2,halfDrain:3,fullDrain:5};
 const RESTORE_TYPES=["lifeForce","mana","stamina"];
-const kinds=["specialAttack","damageSpell","restorationSpell","transferSpell","shieldSpell"];
+export const AILMENT_TIERS={minor:0,moderate:2,greater:4};
+export const STATUS_COSTS={daze:2,slow:2,weaken:2,impair:2,immobilize:3,blind:4,silence:4};
+export const SAVE_ATTRIBUTES=["power","speed","spirit","recovery"];
+const kinds=["specialAttack","damageSpell","restorationSpell","transferSpell","shieldSpell","ailmentRemovalSpell","statusSpell"];
 const reject=(test,message)=>{if(!test)throw Error(message)};
 const num=(v)=>Number(v);
 function tier(table,key,label){reject(Object.hasOwn(table,key),`Invalid ${label}`);return table[key]}
@@ -89,6 +92,24 @@ export function calculateIronBuild(b={}){
    }
   }
   if(b.multiTarget)add(3);
+ }else if(kind==="ailmentRemovalSpell"){
+  add(tier(AILMENT_TIERS,b.removalTier??"minor","ailment removal tier"));
+  reject(!b.multiTarget,"Ailment Removal is strictly single-target at Iron");
+ }else if(kind==="statusSpell"){
+  const statuses=b.statuses??[];
+  reject(Array.isArray(statuses)&&statuses.length>=1&&statuses.length<=2,"Choose one or two status effects");
+  const names=new Set();
+  for(const status of statuses){
+   reject(status&&Object.hasOwn(STATUS_COSTS,status.effect),"Unsupported status effect");
+   reject(!names.has(status.effect),"Effects within one spell must differ");names.add(status.effect);
+   reject(SAVE_ATTRIBUTES.includes(status.save),"Choose a save attribute for each status");
+   add(STATUS_COSTS[status.effect]);
+  }
+  const rounds=Number(b.durationRounds??1);
+  reject(Number.isSafeInteger(rounds)&&rounds>=1&&rounds<=3,"Status duration must be 1, 2, or 3 rounds");
+  if(rounds>1)reject(statuses.some(x=>["weaken","impair","immobilize","blind","silence"].includes(x.effect)),"Duration upgrades need a timed effect");
+  add(rounds-1);
+  if(b.multiTarget)add(3);
  }else{
   reject(["normal","reflection","deflection","mana"].includes(b.shieldType),"Invalid shield type");
   if(b.shieldType==="mana"){add(6);reject(!b.multiTarget,"Mana shield is self-only");}
@@ -116,3 +137,32 @@ export function replacementDecision(existing,incoming){
 }
 export function drainRecovery(resourceRemoved,fraction){reject(Number.isSafeInteger(resourceRemoved)&&resourceRemoved>=0&&[0.25,0.5,1].includes(fraction),"Invalid Drain");return Math.floor(resourceRemoved*fraction);}
 export function reduceDamage(amount,multiplier){reject(Number.isFinite(amount)&&amount>=0&&Number.isFinite(multiplier)&&multiplier>=0,"Invalid damage");return Math.floor(amount*multiplier);}
+
+// Ailment removal: one chosen stack per attempt; Greater selects up to three.
+export function ailmentRemovalAttempts({tier="minor",ailments=[]}={}){
+ tierCostCheck(tier);
+ if(!Array.isArray(ailments))throw Error("Ailments must be an array");
+ const max=tier==="greater"?3:1;
+ if(ailments.length<1||ailments.length>max)throw Error("Invalid number of selected ailment stacks");
+ return ailments.map(a=>{
+  if(!a||!["normal","iron","bronze","silver","gold","diamond","transcendent"].includes(a.rank))throw Error("Invalid ailment rank");
+  if(tier==="minor"&&!a.minorAffliction)throw Error("Minor removal only removes Minor Afflictions");
+  if(a.permanent&&!["normal","iron"].includes(a.rank))throw Error("Iron removal cannot remove higher-rank permanent ailments");
+  const ranks=["normal","iron","bronze","silver","gold","diamond","transcendent"];
+  return {id:a.id,tnPenalty:-10*Math.max(0,ranks.indexOf(a.rank)-ranks.indexOf("iron"))};
+ });
+}
+function tierCostCheck(tier){if(!Object.hasOwn(AILMENT_TIERS,tier))throw Error("Invalid ailment removal tier");}
+export function statusSaveTN(baseTN,{critical=false,resistanceModifier=0,immune=false}={}){
+ if(!Number.isFinite(baseTN)||!Number.isFinite(resistanceModifier))throw Error("Invalid save TN");
+ return immune?null:baseTN+resistanceModifier-(critical?10:0);
+}
+export function statusActionCost(baseActionScore,slowStacks=0){
+ if(!Number.isSafeInteger(baseActionScore)||baseActionScore<0||!Number.isSafeInteger(slowStacks)||slowStacks<0)throw Error("Invalid action or Slow stacks");
+ return baseActionScore+slowStacks;
+}
+export function statusTNModifier(stacks=[]){
+ if(!Array.isArray(stacks))throw Error("Invalid status list");
+ const count=x=>stacks.filter(s=>s===x).length;
+ return {physicalAttack:-5*count("weaken")-10*count("blind"),magicalAttack:-10*count("blind"),spellcasting:-5*count("impair")};
+}
