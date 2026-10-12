@@ -119,9 +119,14 @@ export function calculateIronBuild(b={}){
   else {add(tier(SHIELD_TIERS,b.potency??"minor","shield potency")[1]);if(b.shieldType==="reflection")add(2);}
   reject(!b.multiTarget,"Shield spells cannot multi-target");
  }
+ if(b.ritualCompatible){
+  reject(kind!=="specialAttack","Ritual casting applies only to spell abilities");
+  reject(typeof b.ritualEnhancement==="string"&&b.ritualEnhancement.trim().length>0,"Ritual enhancement must be described");
+  reject(b.ritualApproved===true,"Ritual compatibility requires GM approval");
+ }
  const credit=Math.min(refund,creditCap);
  const finalAP=Math.max(0,positive-credit);
- return {kind,baseAP:budget,drawbackCap:creditCap,positiveAP:positive,requestedDrawbacks:refund,apCredit:credit,finalAP,remainingAP:budget-finalAP,valid:finalAP<=budget,actionScore:CAST_SPEED[b.speed??"medium"][0],resource:b.resource??(kind==="specialAttack"?"stamina":"mana"),activationPercent:kind==="shieldSpell"&&b.shieldType==="mana"?0:ACTIVATION[b.activation??"medium"][0]};
+ return {kind,baseAP:budget,drawbackCap:creditCap,positiveAP:positive,requestedDrawbacks:refund,apCredit:credit,finalAP,remainingAP:budget-finalAP,valid:finalAP<=budget,actionScore:CAST_SPEED[b.speed??"medium"][0],resource:b.resource??(kind==="specialAttack"?"stamina":"mana"),activationPercent:kind==="shieldSpell"&&b.shieldType==="mana"?0:ACTIVATION[b.activation??"medium"][0],ritualActionScore:b.ritualCompatible?CAST_SPEED[b.speed??"medium"][0]*3:null};
 }
 export function activationAmount(max,percentage){reject(Number.isFinite(num(max))&&num(max)>=0,"Invalid maximum resource");return percentage===0?0:Math.max(1,Math.ceil(num(max)*percentage));}
 export function damageOnSuccess(tierName,successes){reject(Number.isSafeInteger(successes)&&successes>=0,"Invalid successes");return tier(DAMAGE_TIERS,tierName,"damage tier")[0]*successes;}
