@@ -176,7 +176,8 @@ export class HWFWMActorSheet extends ActorSheet{
         effectDamageIndex:Number(field("effectDamageIndex")||0),multiTarget:row.find('[data-iron-field="multiTarget"]').prop("checked"),
         lifeForceUnlocked:row.find('[data-iron-field="lifeForceUnlocked"]').prop("checked"),
         specialAttackAptitude:row.find('[data-iron-field="specialAttackAptitude"]').prop("checked"),
-        resource:field("resource")};
+        resource:field("resource"),ritualCompatible:row.find('[data-iron-field="ritualCompatible"]').prop("checked"),
+        ritualEnhancement:field("ritualEnhancement"),ritualApproved:game.user.isGM&&row.find('[data-iron-field="ritualApproved"]').prop("checked")};
       const result=calculateIronBuild(build);
       if(!result.valid)throw Error("Build exceeds Iron AP budget by "+(-result.remainingAP)+" AP");
       if(!this.actor.isOwner)throw Error("No permission to save");
