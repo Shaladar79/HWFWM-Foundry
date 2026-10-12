@@ -1,9 +1,9 @@
 import test from "node:test";import assert from "node:assert/strict";
 import {SKILLS,SKILL_CATALOG,validateStartingSkills,grantStartingSkills} from "../scripts/p3-skill-catalog.js";
 import {SAVING_THROWS,resolveSavingThrow} from "../scripts/p3-saving-throws.js";
-test("first-edition list has exactly 26 skills with approved groups",()=>{
- assert.deepEqual(Object.values(SKILL_CATALOG).map(a=>a.length),[7,5,11,3]);
- assert.equal(SKILLS.length,26);
+test("first-edition list has exactly 27 skills with approved groups",()=>{
+ assert.deepEqual(Object.values(SKILL_CATALOG).map(a=>a.length),[7,5,12,3]);
+ assert.equal(SKILLS.length,27);
  for(const removed of ["Reflexes","Evasion","Constitution","Fortitude","Arcana"])assert.ok(!SKILLS.some(s=>s.name===removed));
 });
 test("five distinct initial skills, prerequisite, and no specialization",()=>{
