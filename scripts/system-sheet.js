@@ -1,3 +1,4 @@
+import {calculateIronBuild} from "./p4-iron-rules.js";
 import {saveComponentEdit} from "./p4-ability-creator.js";
 import {ABILITY_COMPONENT_KINDS,ABILITY_FIELD_SOURCES} from "./p3-ability-blueprint.js";
 import {recoveryIssue} from "./p3-combat-safety.js";
@@ -52,7 +53,7 @@ export class HWFWMActorSheet extends ActorSheet{
   const essences=this.actor.items.filter(i=>i.type==="essence");
   data.attributes=ATTRIBUTES.map(key=>({key,...(s.attributes?.[key]??{}),essence:essences.find(e=>e.system.bondedAttribute===key)?.name??"Not bonded"}));
   const multiplier=game.settings.get("hwfwm","essenceXpMultiplier");
-  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,blueprintNotes:a.system.blueprint?.notes??"",blueprintComponents:a.system.blueprint?.components?.length??0,componentRows:(a.system.blueprint?.components??[]).map((c,index)=>({...c,index})),apHistory:a.system.apHistory??[],apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
+  data.essenceGroups=ATTRIBUTES.map(key=>{const essence=essences.find(e=>e.system.bondedAttribute===key);return {key,essenceName:essence?.name??"Unassigned",essenceId:essence?.id,abilities:essence?this.actor.items.filter(i=>i.type==="ability"&&i.system.essenceId===essence.id).map(a=>({id:a.id,name:a.name,rank:a.system.rank,level:a.system.level,cost:advancementCost(a.system,{multiplier}),actionCost:a.system.actionCost,manaCost:a.system.manaCost,staminaCost:a.system.staminaCost,awakeningStone:a.system.awakeningStone,favorite:a.system.favorite,blueprintNotes:a.system.blueprint?.notes??"",blueprintComponents:a.system.blueprint?.components?.length??0,componentRows:(a.system.blueprint?.components??[]).map((c,index)=>({...c,index})),apHistory:a.system.apHistory??[],ironBuild:a.system.ironBuild??null,apConfigured:a.system.apConfigured,abilityPurpose:a.system.abilityPurpose??"standard",abilityType:a.system.abilityType,apSpent:a.system.apSpent,apTypes:ABILITY_TYPES.map(t=>({value:t,selected:t===(a.system.abilityType??"other")}))})):[]};});
   data.catalogEssences=catalogOptions(readCatalog());
   data.awakeningStones=listStones();
   data.hasEssences=essences.length>0;
@@ -150,6 +151,37 @@ export class HWFWMActorSheet extends ActorSheet{
   html.find("[data-action=p4-remove-component]").on("click",async e=>{
    try{await saveComponentEdit(this.actor,e.currentTarget.dataset.id,{operation:"remove",index:Number(e.currentTarget.dataset.index)});this.render(false);}
    catch(error){ui.notifications.warn(error.message);}
+  });
+  html.find("[data-action=save-iron-build]").on("click",async event=>{
+    const id=event.currentTarget.dataset.id;
+    const ability=this.actor.items.get(id);
+    const row=html.find('[data-editor-id="'+id+'"]');
+    const field=key=>String(row.find('[data-iron-field="'+key+'"]').val()??"").trim();
+    const parts=[];
+    for(const suffix of ["1","2"]){
+      const type=field("damageType"+suffix);
+      if(type)parts.push({type,tier:field("damageTier"+suffix)||"minor"});
+    }
+    try{
+      if(!ability||ability.type!=="ability")throw Error("Ability not found");
+      const kind=field("kind"),effect=field("effect");
+      const build={kind,damage:parts,effect,speed:field("speed"),cooldown:field("cooldown"),
+        activation:kind==="shieldSpell"&&field("shieldType")==="mana"?"none":field("activation"),
+        range:field("range"),weapons:field("weapons").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean),
+        shieldType:field("shieldType"),potency:field("potency")==="none"?null:field("potency"),
+        regeneration:field("regeneration"),regenUpgrade:Number(field("regenUpgrade")||0),
+        restoreResource:field("restoreResource"),drainResource:field("drainResource"),
+        effectDamageIndex:Number(field("effectDamageIndex")||0),multiTarget:row.find('[data-iron-field="multiTarget"]').prop("checked"),
+        lifeForceUnlocked:row.find('[data-iron-field="lifeForceUnlocked"]').prop("checked"),
+        specialAttackAptitude:row.find('[data-iron-field="specialAttackAptitude"]').prop("checked"),
+        resource:field("resource")};
+      const result=calculateIronBuild(build);
+      if(!result.valid)throw Error("Build exceeds Iron AP budget by "+(-result.remainingAP)+" AP");
+      if(!this.actor.isOwner)throw Error("No permission to save");
+      await ability.update({"system.ironBuild":{...build,summary:result}});
+      ui.notifications.info(ability.name+" Iron build saved: "+result.finalAP+" / "+result.baseAP+" AP");
+      this.render(false);
+    }catch(error){ui.notifications.warn(error.message);}
   });
   html.find("[data-action=save-ability]").on("click",async event=>{
     const id=event.currentTarget.dataset.id;
