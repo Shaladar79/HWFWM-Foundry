@@ -93,7 +93,9 @@ export function calculateIronBuild(b={}){
   }
   if(b.multiTarget)add(3);
  }else if(kind==="ailmentRemovalSpell"){
-  add(tier(AILMENT_TIERS,b.removalTier??"minor","ailment removal tier"));
+  const removalTier=b.removalTier??"minor";
+  reject(Object.hasOwn(AILMENT_TIERS,removalTier),"Invalid ailment removal tier");
+  add(AILMENT_TIERS[removalTier]);
   reject(!b.multiTarget,"Ailment Removal is strictly single-target at Iron");
  }else if(kind==="statusSpell"){
   const statuses=b.statuses??[];
