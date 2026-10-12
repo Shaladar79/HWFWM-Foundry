@@ -151,7 +151,7 @@ export function ailmentRemovalAttempts({tier="minor",ailments=[]}={}){
   if(tier==="minor"&&!a.minorAffliction)throw Error("Minor removal only removes Minor Afflictions");
   if(a.permanent&&!["normal","iron"].includes(a.rank))throw Error("Iron removal cannot remove higher-rank permanent ailments");
   const ranks=["normal","iron","bronze","silver","gold","diamond","transcendent"];
-  return {id:a.id,tnPenalty:-10*Math.max(0,ranks.indexOf(a.rank)-ranks.indexOf("iron"))};
+  return {id:a.id,tnPenalty:Math.max(0,ranks.indexOf(a.rank)-ranks.indexOf("iron"))* -10 || 0};
  });
 }
 function tierCostCheck(tier){if(!Object.hasOwn(AILMENT_TIERS,tier))throw Error("Invalid ailment removal tier");}
